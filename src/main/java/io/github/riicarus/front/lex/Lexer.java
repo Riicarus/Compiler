@@ -111,11 +111,15 @@ public class Lexer {
         if (ch >= '0' && ch <= '9') {
             boolean isFloat = false;
             String number = scanNumber();
+            nextChar();
             if (ch == '.') {
                 number += ch;
                 isFloat = true;
+                nextChar();
+                String floatNum = scanNumber();
+                number += floatNum;
+                if (floatNum.length() == 0) return new IllegalToken(number, position, "Empty float suffix");
             }
-            number += scanNumber();
             return new Token(isFloat ? LexSymbol.FLOAT_LIT : LexSymbol.INT_LIT, number, position);
         }
         // string
@@ -128,7 +132,7 @@ public class Lexer {
                     lit = String.valueOf(src, offset + 1, off - 1);
                     // do not eat the '\n'
                     offset += off - 1;
-                    return new IllegalToken(LexSymbol.ILLEGAL, ch + lit, position, "Illegal line end in string literal.");
+                    return new IllegalToken(ch + lit, position, "Illegal line end in string literal");
                 }
 
                 off++;
@@ -140,7 +144,7 @@ public class Lexer {
 
             // if no right '"' to match, make it a wrong token.
             if (offset >= src.length) {
-                return new IllegalToken(LexSymbol.ILLEGAL, "\"" + lit, position, "Illegal line end in string literal.");
+                return new IllegalToken("\"" + lit, position, "Illegal line end in string literal");
             }
 
             return new Token(LexSymbol.STRING_LIT, lit, position);
@@ -149,13 +153,13 @@ public class Lexer {
         if (ch == '\'') {
             nextChar();
             if (ch == '\'')
-                return new IllegalToken(LexSymbol.ILLEGAL, "''", position, "Empty character literal");
+                return new IllegalToken("''", position, "Empty character literal");
 
             String lit = String.valueOf(ch);
             nextChar();
             if (ch != '\'') {
                 contract();
-                return new IllegalToken(LexSymbol.ILLEGAL, "'" + ch, position, "Unclosed character literal");
+                return new IllegalToken("'" + ch, position, "Unclosed character literal");
             }
             return new Token(LexSymbol.CHAR_LIT, lit, position);
         }
@@ -307,7 +311,7 @@ public class Lexer {
 
         // pch is illegal
         contract();
-        return new IllegalToken(LexSymbol.ILLEGAL, String.valueOf(ch), position, "Illegal token");
+        return new IllegalToken(String.valueOf(ch), position, "Illegal token");
     }
 
     private void nextSkipWhiteSpace() {
@@ -345,6 +349,7 @@ public class Lexer {
             nextChar();
         }
 
+        contract();
         return sb.toString();
     }
 
@@ -355,6 +360,7 @@ public class Lexer {
             nextChar();
         }
 
+        contract();
         return sb.toString();
     }
 }

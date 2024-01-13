@@ -28,7 +28,7 @@ public enum LexSymbol {
     TYPE("type"),
     STRUCT("struct"),
     // value
-    TRUE("false"),
+    TRUE("true"),
     FALSE("false"),
     NULL("null"),
     // control

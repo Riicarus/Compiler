@@ -13,8 +13,8 @@ public class IllegalToken extends Token {
 
     private final String detail;
 
-    public IllegalToken(LexSymbol symbol, String lexeme, Position position, String detail) {
-        super(symbol, lexeme, position);
+    public IllegalToken(String lexeme, Position position, String detail) {
+        super(LexSymbol.ILLEGAL, lexeme, position);
         this.detail = detail;
     }
 
