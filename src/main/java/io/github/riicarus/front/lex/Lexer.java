@@ -310,6 +310,12 @@ public class Lexer {
         return new IllegalToken(LexSymbol.ILLEGAL, String.valueOf(ch), position, "Illegal token");
     }
 
+    private void nextSkipWhiteSpace() {
+        do {
+            nextChar();
+        } while (ch == ' ');
+    }
+
     private void nextChar() {
         if (offset < src.length - 1) {
             ch = src[++offset];
@@ -330,12 +336,6 @@ public class Lexer {
     private void newLine() {
         lineOffset++;
         inlineOffset = 0;
-    }
-
-    private void nextSkipWhiteSpace() {
-        do {
-            nextChar();
-        } while (ch == ' ');
     }
 
     private String scanWord() {
