@@ -108,7 +108,7 @@ public class Lexer {
 
         // values_lit
         // int / float
-        if ((ch >= '0' && ch <= '9')) {
+        if (ch >= '0' && ch <= '9') {
             boolean isFloat = false;
             String number = scanNumber();
             if (ch == '.') {
@@ -350,7 +350,7 @@ public class Lexer {
 
     private String scanNumber() {
         StringBuilder sb = new StringBuilder();
-        while ((ch >= '0' && ch <= '9')) {
+        while (ch >= '0' && ch <= '9') {
             sb.append(ch);
             nextChar();
         }
