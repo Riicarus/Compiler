@@ -313,7 +313,7 @@ public class Lexer {
             ch = src[++offset];
             inlineOffset++;
         } else {
-            offset = src.length - 1;
+            offset = src.length;
             ch = EOF;
         }
     }
