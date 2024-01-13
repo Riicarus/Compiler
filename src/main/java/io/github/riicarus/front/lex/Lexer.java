@@ -305,7 +305,9 @@ public class Lexer {
             return new Token(LexSymbol.XOR, position);
         }
 
-        return new Token(LexSymbol.ILLEGAL, String.valueOf(ch), position);
+        // pch is illegal
+        contract();
+        return new IllegalToken(LexSymbol.ILLEGAL, String.valueOf(ch), position, "Illegal token");
     }
 
     private void nextChar() {
