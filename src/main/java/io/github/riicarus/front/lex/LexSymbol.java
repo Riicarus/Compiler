@@ -8,7 +8,7 @@ import java.util.Map;
  * <p>
  * LexSymbol will be formatted as: &lt;code, name&gt;.
  * <p>
- *  All illegal lex symbol will be represented as: {@code ILLEGAL}
+ * All illegal lex symbol will be represented as: {@code ILLEGAL}
  *
  * @author Riicarus
  * @create 2024-1-12 12:50
@@ -37,9 +37,16 @@ public enum LexSymbol {
     IF("if"),
     ELSE("else"),
     ELSE_IF("elseif"),
+    SWITCH("switch"),
+    CASE("case"),
+    DEFAULT("default"),
     CONTINUE("continue"),
     BREAK("break"),
     RETURN("return"),
+    // scope
+    PACKAGE("package"),
+    IMPORT("import"),
+    CONST("const"),
 
     // literal
     IDENT("identifier"),
@@ -129,9 +136,15 @@ public enum LexSymbol {
         reservedWordMap.put(IF.name, IF);
         reservedWordMap.put(ELSE.name, ELSE);
         reservedWordMap.put(ELSE_IF.name, ELSE_IF);
+        reservedWordMap.put(SWITCH.name, SWITCH);
+        reservedWordMap.put(CASE.name, CASE);
+        reservedWordMap.put(DEFAULT.name, DEFAULT);
         reservedWordMap.put(CONTINUE.name, CONTINUE);
         reservedWordMap.put(BREAK.name, BREAK);
         reservedWordMap.put(RETURN.name, RETURN);
+        reservedWordMap.put(PACKAGE.name, PACKAGE);
+        reservedWordMap.put(IMPORT.name, IMPORT);
+        reservedWordMap.put(CONST.name, CONST);
     }
 
     public static LexSymbol lookUpReserved(String lexeme) {
