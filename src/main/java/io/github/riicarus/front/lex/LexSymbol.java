@@ -27,6 +27,8 @@ public enum LexSymbol {
     VOID("void"),
     TYPE("type"),
     STRUCT("struct"),
+    // new
+    NEW("new"),
     // value
     TRUE("true"),
     FALSE("false"),
@@ -104,6 +106,7 @@ public enum LexSymbol {
     PERIOD("."),
     SEMICOLON(";"),
     COLON(":"),
+    QUES("?"),
     COMMENT("//"),
 
     // others
@@ -128,6 +131,7 @@ public enum LexSymbol {
         reservedWordMap.put(VOID.name, VOID);
         reservedWordMap.put(TYPE.name, TYPE);
         reservedWordMap.put(STRUCT.name, STRUCT);
+        reservedWordMap.put(NEW.name, NEW);
         reservedWordMap.put(TRUE.name, TRUE);
         reservedWordMap.put(FALSE.name, FALSE);
         reservedWordMap.put(NULL.name, NULL);
