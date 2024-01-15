@@ -30,9 +30,9 @@ public enum LexSymbol {
     // new
     NEW("new"),
     // value
-    TRUE("true"),
-    FALSE("false"),
-    NULL("null"),
+    TRUE(LitKind.TRUE.getName()),
+    FALSE(LitKind.FALSE.getName()),
+    NULL(LitKind.NULL.getName()),
     // control
     FOR("for"),
     WHILE("while"),
@@ -52,10 +52,10 @@ public enum LexSymbol {
 
     // literal
     IDENT("identifier"),
-    INT_LIT("int_lit"),
-    FLOAT_LIT("float_lit"),
-    CHAR_LIT("char_lit"),
-    STRING_LIT("string_lit"),
+    INT_LIT(LitKind.INT.getName()),
+    FLOAT_LIT(LitKind.FLOAT.getName()),
+    CHAR_LIT(LitKind.CHAR.getName()),
+    STRING_LIT(LitKind.STRING.getName()),
 
     // op/assistant symbols
     // rel
