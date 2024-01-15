@@ -181,7 +181,6 @@ TypeName:   identifier
 FieldDecls:     FieldDecl FieldDecls
             |   e
 FieldDecl:      Type Id ";"
-            |   TypeName Id ";"
 ```
 
 #### Expression Statement
@@ -207,7 +206,7 @@ AssignOp:   "="
         |   ">>="
 
 CondExpr:   LorExpr
-        |   LorExpr "?" Expr : CondExpr
+        |   LorExpr "?" Expr : Expr
 
 LorExpr:    LandExpr LorExpr'
 LorExpr':   "||" LandExpr LorExpr'
@@ -260,7 +259,6 @@ MulExpr':   "*" CastExpr MulExpr'
         |   e
 
 CastExpr:   UnaryExpr
-        |   "(" TypeName ")" CastExpr
         |   "(" Type ")" CastExpr
 
 UnaryExpr:  PostfixExpr
@@ -270,6 +268,7 @@ UnaryExpr:  PostfixExpr
 
 PostfixExpr:    PrimExpr PostfixExpr'
 PostfixExpr':   "[" Expr "]" PostfixExpr'
+            |   "[" Expr ":" Expr "]" PostfixExpr'
             |   "(" Params ")" PostfixExpr'
             |   "." Id PostfixExpr'
             |   "++"
