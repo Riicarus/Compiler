@@ -146,7 +146,7 @@ Declare statement contains variable and function declaration, and at the same ti
 Decl:   Type VarDecl
 
 VarDecl:    Id ";"
-        |   Id ":=" Expr ";"
+        |   Id "=" Expr ";"
         |   "func" Id "(" ParamDecls ")" CodeBlock
 
 Id:     identifier
@@ -159,7 +159,6 @@ ParamDecl:      Type Id
 
 Type:   BaseType Type'
     |   TypeName Type'
-    |   "void" "func" "(" ParamTypeDecls ")" Type'
 Type':  "func" "(" ParamTypeDecls ")" Type'
     |   "[" "]"
     |   e
@@ -169,6 +168,7 @@ BaseType:   "int"
         |   "bool"
         |   "char"
         |   "string"
+        |   "void"
 
 ParamTypeDecls:     Type ParamTypeDecls'
                 |   e
