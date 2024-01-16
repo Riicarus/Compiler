@@ -277,14 +277,14 @@ CastExpr:   UnaryExpr
         |   "(" Type ")" CastExpr
 
 UnaryExpr:  PostfixExpr
-        |   "++" UnaryExpr
-        |   "--" UnaryExpr
         |   UnaryOp CastExpr
 
 UnaryOp:    "!"
         |   "~"
         |   "&"
         |   "*"
+        |   "++"
+        |   "--"
 
 PostfixExpr:    PrimExpr PostfixExpr'
 PostfixExpr':   "[" Expr "]" PostfixExpr'
