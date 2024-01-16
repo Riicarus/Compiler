@@ -89,8 +89,8 @@ string_lit  ->  " (charset exclude ")* "
 
 ```text
 ==  !=  <  <=  >  >=
-+  -  *  /  %  &  |  ^  <<  >>
-=  +=  -=  *=  /=  %=  &=  |=  ^=  <<=  >>=  ++  --
++  -  *  /  %  &  |  ^  ~  <<  >>
+=  +=  -=  *=  /=  %=  &=  |=  ^=  ~=  <<=  >>=  ++  --
 &&  ||  !
 (  )  [  ]  {  }  ->  ,  .  ;  :  ?  //
 ```
@@ -113,6 +113,18 @@ Syntaxer scans the token list given by Lexer, completing following tasks:
 
 AST makes it better to deal with semantic analysis.
 
+#### Parse Algorithm
+
+Syntaxer mainly use recursive descent analysis, and there may be some look-ahead optimization algorithm to help syntaxer define which production to use next.
+
+Syntaxer does not get all lex tokens from lexer once, but gets one by one. When successfully consuming a token or ignore a token for error recovery, syntaxer gets next token from lexer through calling method `Lexer#next()`.
+
+#### Error Handling
+
+Currently the syntaxer will only scan and report the first occurred error, because when meeting one error, the syntaxer will throw an `IllegalStateException`. But we could add some more error recovery algorithms to scan more error and report better error messages.
+
+We may also report warnings instead of only reporting errors. The warnings meaning the statement may be unnecessary or may lead some runtime error.
+
 ### Syntax Define
 
 As the syntax analysis algorithm we use is recursive descent analysis, so the syntax cannot contain left recursion or be ambiguous.
@@ -123,9 +135,10 @@ We use *'"' quoted strings* like `"{"` to represent literal symbols(terminal), a
 
 #### Program
 
+Statements do not end with right braces(`}`) need append a semicolon(`;`) in the end as a separator of statements.
+
 ```text
-Program:    CodeBlock
-        |   e
+Program:    Stmts
 
 CodeBlock:  "{" Stmts "}"
 
@@ -143,11 +156,9 @@ Stmts:  Stmt Stmts
 Declare statement contains variable and function declaration, and at the same time the init assignment is also acceptable.
 
 ```text
-Decl:   Type VarDecl
-
-VarDecl:    Id ";"
-        |   Id "=" Expr ";"
-        |   "func" Id "(" ParamDecls ")" CodeBlock
+Decl:   Type Id ";"
+    |   Type Id "=" Expr ";"
+    |   Type "func" Id "(" ParamDecls ")" CodeBlock
 
 Id:     identifier
 
@@ -202,6 +213,7 @@ AssignOp:   "="
         |   "&="
         |   "|="
         |   "^="
+        |   "~="
         |   "<<="
         |   ">>="
 
@@ -266,6 +278,11 @@ UnaryExpr:  PostfixExpr
         |   "--" UnaryExpr
         |   UnaryOp CastExpr
 
+UnaryOp:    "!"
+        |   "~"
+        |   "&"
+        |   "*"
+
 PostfixExpr:    PrimExpr PostfixExpr'
 PostfixExpr':   "[" Expr "]" PostfixExpr'
             |   "[" Expr ":" Expr "]" PostfixExpr'
@@ -274,16 +291,16 @@ PostfixExpr':   "[" Expr "]" PostfixExpr'
             |   "++"
             |   "--"
 
+Params:     Expr Params'
+        |   e
+Params':    "," Expr Params'
+        |   e
+
 PrimExpr:   Id
         |   Const
         |   "(" Expr ")"
         |   FuncInlineDecl
         |   NewExpr
-
-Params:     Expr Params'
-        |   e
-Params':    "," Expr Params'
-        |   e
 
 Const:  int_lit
     |   float_lit
@@ -293,7 +310,7 @@ Const:  int_lit
     |   "false"
     |   "null"
 
-FuncInlineDecl: Type "(" ParamDecls ")" "->" CodeBlock
+FuncInlineDecl: Type "(" ParamDecls ")" "->" Stmt
 
 NewExpr:    "new" Type "(" Params ")"
         |   "new" Type "[" Expr "]"
@@ -306,14 +323,16 @@ Elements':  ", " Expr Elements'
 
 #### Control Statement
 
-Control Statement contains loops and conditional statements.
+Control statement contains loops(`for`, `while`) and brach statements(`if`, `switch`) and simple control statements(`break`, `continue`, `return`).
 
 ```text
 Control:    Break
         |   Continue
         |   Return
         |   If
-        |   Loop
+        |   Switch
+        |   For
+        |   While
 
 Break:      "break" ";"
 
@@ -326,28 +345,38 @@ Return:     "return" ";"
 ##### If Statement
 
 ```text
-If:         "if" "(" Expr ")" CodeBlock Else
+If:         "if" "(" Expr ")" Stmt Else
 
 Else:       ElseIfs EndElse
 
 ElseIfs:    ElseIf ElseIfs
         |   e
 
-ElseIf:     "elseif" "(" Expr ")" CodeBlock
+ElseIf:     "elseif" "(" Expr ")" Stmt
 
-EndElse:    "else" CodeBlock
+EndElse:    "else" Stmt
         |   e
 ```
 
-##### Loop Statement
-
-###### For Statement
+##### Switch Statement
 
 ```text
-For:            "for" "(" ForInits ";" ForCond ";" ForUpdate ")" CodeBlock
+Switch:         "switch" "(" Expr ")" "{" Cases "}"
+
+Cases:          Case Cases
+            |   DefaultCase
+            |   e
+
+Case:           "case" Expr ":" Stmt
+DefaultCase:    "default" Stmt
+```
+
+##### For Statement
+
+```text
+For:            "for" "(" ForInits ";" ForCond ";" ForUpdate ")" Stmt
 
 ForInits:       VarAssigns
-
 
 ForCond:        Expr
             |   e
@@ -360,4 +389,10 @@ VarAssigns':    "," VarAssign VarAssigns'
             |   e
 VarAssign:      Type Id ":=" Expr
             |   Id ":=" Expr
+```
+
+##### While Statement
+
+```text
+While:  "while" "(" Expr ")" Stmt
 ```
