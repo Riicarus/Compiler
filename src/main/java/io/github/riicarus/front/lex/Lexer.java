@@ -176,6 +176,7 @@ public class Lexer {
         if (ch == '.') return new Token(LexSymbol.PERIOD, position);
         if (ch == ';') return new Token(LexSymbol.SEMICOLON, position);
         if (ch == ':') return new Token(LexSymbol.COLON, position);
+        if (ch == '?') return new Token(LexSymbol.QUES, position);
         if (ch == EOF) return new Token(LexSymbol.EOF, position);
         if (ch == '\n') {
             newLine();
@@ -229,12 +230,12 @@ public class Lexer {
             contract();
             return new Token(LexSymbol.ASSIGN, position);
         }
-        // NOT, NE: !, !=
+        // LNOT, NE: !, !=
         if (pch == '!') {
             if (ch == '=') return new Token(LexSymbol.NE, position);
 
             contract();
-            return new Token(LexSymbol.NOT, position);
+            return new Token(LexSymbol.LNOT, position);
         }
         // ADD, INC, ADD_ASSIGN: +, ++, +=
         if (pch == '+') {
@@ -307,6 +308,13 @@ public class Lexer {
 
             contract();
             return new Token(LexSymbol.XOR, position);
+        }
+        // NOT, NOT_ASSIGN: ~, ~=
+        if (pch == '~') {
+            if (ch == '=') return new Token(LexSymbol.NOT_ASSIGN, position);
+
+            contract();
+            return new Token(LexSymbol.NOT, position);
         }
 
         // pch is illegal

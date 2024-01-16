@@ -74,6 +74,7 @@ public enum LexSymbol {
     AND("&"),
     OR("|"),
     XOR("^"),
+    NOT("~"),
     SHL("<<"),
     SHR(">>"),
     // assign
@@ -86,6 +87,7 @@ public enum LexSymbol {
     AND_ASSIGN("&="),
     OR_ASSIGN("|="),
     XOR_ASSIGN("^="),
+    NOT_ASSIGN("~="),
     SHL_ASSIGN("<<="),
     SHR_ASSIGN(">>="),
     INC("++"),
@@ -93,7 +95,7 @@ public enum LexSymbol {
     // logic,
     LAND("&&"),
     LOR("||"),
-    NOT("!"),
+    LNOT("!"),
     // assistant
     LPAREN("("),
     RPAREN(")"),
