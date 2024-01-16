@@ -117,13 +117,13 @@ AST makes it better to deal with semantic analysis.
 
 Syntaxer mainly uses recursive descent analysis, and there may be some look-ahead optimization algorithm to help syntaxer define which production to use next.
 
-Syntaxer does not get all lex tokens from lexer once, but gets one by one. When successfully consuming a token or ignore a token for error recovery, syntaxer gets next token from lexer through calling method `Lexer#next()`.
+Syntaxer does not get all lex tokens from lexer once, but gets one by one. When successfully consuming a token or ignore a token for error recovery, syntaxer gets next token from lexer through calling method `Lexer#next()`. Syntaxer will stop the token iteration when meeting the `EOF` token.
 
 #### Error Handling
 
 Currently the syntaxer will only scan and report the first occurred error, because when meeting one error, the syntaxer will throw an `IllegalStateException`. But we could add some more error recovery algorithms to scan more error and report better error messages.
 
-We may also report warnings instead of only reporting errors. The warnings meaning the statement may be unnecessary or lead some runtime error.
+We may also report warnings instead of only reporting errors. The warnings meaning the statement may be unnecessary or lead some runtime errors.
 
 ### Syntax Define
 
