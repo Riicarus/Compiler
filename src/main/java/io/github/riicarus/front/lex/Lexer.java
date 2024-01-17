@@ -166,6 +166,7 @@ public class Lexer {
 
         // symbols
         // non-prefix char symbols
+        if (ch == '~') return new Token(LexSymbol.NOT, position);
         if (ch == '(') return new Token(LexSymbol.LPAREN, position);
         if (ch == ')') return new Token(LexSymbol.RPAREN, position);
         if (ch == '[') return new Token(LexSymbol.LBRACK, position);
@@ -308,13 +309,6 @@ public class Lexer {
 
             contract();
             return new Token(LexSymbol.XOR, position);
-        }
-        // NOT, NOT_ASSIGN: ~, ~=
-        if (pch == '~') {
-            if (ch == '=') return new Token(LexSymbol.NOT_ASSIGN, position);
-
-            contract();
-            return new Token(LexSymbol.NOT, position);
         }
 
         // pch is illegal

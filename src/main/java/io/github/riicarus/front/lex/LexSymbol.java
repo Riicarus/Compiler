@@ -87,7 +87,6 @@ public enum LexSymbol {
     AND_ASSIGN("&="),
     OR_ASSIGN("|="),
     XOR_ASSIGN("^="),
-    NOT_ASSIGN("~="),
     SHL_ASSIGN("<<="),
     SHR_ASSIGN(">>="),
     INC("++"),
