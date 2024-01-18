@@ -103,28 +103,6 @@ EOF  ILLEGAL
 
 ## Syntax
 
-### Syntaxer
-
-Syntaxer scans the token list given by Lexer, completing following tasks:
-
-- AST construction
-- symbol table generation
-- scope management
-
-AST makes it better to deal with semantic analysis.
-
-#### Parse Algorithm
-
-Syntaxer mainly uses recursive descent analysis, and there may be some look-ahead optimization algorithm to help syntaxer define which production to use next.
-
-Syntaxer does not get all lex tokens from lexer once, but gets one by one. When successfully consuming a token or ignore a token for error recovery, syntaxer gets next token from lexer through calling method `Lexer#next()`. Syntaxer will stop the token iteration when meeting the `EOF` token.
-
-#### Error Handling
-
-Currently the syntaxer will only scan and report the first occurred error, because when meeting one error, the syntaxer will throw an `IllegalStateException`. But we could add some more error recovery algorithms to scan more error and report better error messages.
-
-We may also report warnings instead of only reporting errors. The warnings meaning the statement may be unnecessary or lead some runtime errors.
-
 ### Syntax Define
 
 As the syntax analysis algorithm we use is recursive descent analysis, so the syntax cannot contain left recursion or be ambiguous.
@@ -133,22 +111,24 @@ Tips:
 
 We use *'"' quoted strings* like `"{"` to represent literal symbols(terminal), and *camel-case words with capital letters* like `Stmt` to represent syntax symbols(nonterminal). Specially, `e` represents to $\epsilon$.
 
+*Statements* always represent executable actions while *Expressions* always represent a value. So *Statements* is of higher level comparing to *Expressions*. But there are some intersections like: `ASSIGN`, `INC`, `DEC`, `FuncCall`, they both can represent an action or a value, we put them in both levels.
+
 #### Program
 
 Statements do not end with right braces(`}`) need append a semicolon(`;`) in the end as a separator of statements.
 
 ```text
-Program:    Stmts
+Program:        Stmts
 
-CodeBlock:  "{" Stmts "}"
+CodeBlock:      "{" Stmts "}"
 
-Stmt:   Decl
-    |   Expr ";"
-    |   Control
-    |   CodeBlock
+Stmt:           Decl
+            |   Expr ";"
+            |   Control
+            |   CodeBlock
 
-Stmts:  NullableStmt Stmts
-    |   eps
+Stmts:          NullableStmt Stmts
+            |   eps
 
 NullableStmt:   Stmt
             |   ";"
@@ -159,42 +139,48 @@ NullableStmt:   Stmt
 Declare statement contains variable and function declaration, and at the same time the init assignment is also acceptable.
 
 ```text
-Decl:   Type Id ";"
-    |   Type Id "=" Expr ";"
-    |   Type "func" Id "(" ParamDecls ")" CodeBlock
+Decl:               ConstDecl
+                |   CommonDecl
 
-Id:     identifier
+ConstDecl:          "const" Type Id ";"
+                |   "const" Type Id "=" Expr ";"
 
-ParamDecls:     ParamDecl ParamDecls'
-            |   e
-ParamDecls':    "," ParamDecl ParamDecls'
-            |   e
-ParamDecl:      Type Id
+CommonDecl:         Type Id ";"
+                |   Type Id "=" Expr ";"
+                |   Type "func" Id "(" ParamDecls ")" CodeBlock
 
-Type:   BaseType Type'
-    |   TypeName Type'
-Type':  "func" "(" ParamTypeDecls ")" Type'
-    |   "[" "]"
-    |   e
+Id:                 identifier
 
-BaseType:   "int"
-        |   "float"
-        |   "bool"
-        |   "char"
-        |   "string"
-        |   "void"
+ParamDecls:         ParamDecl ParamDecls'
+                |   e
+ParamDecls':        "," ParamDecl ParamDecls'
+                |   e
+ParamDecl:          Type Id
+
+Type:               BaseType Type'
+                |   TypeName Type'
+Type':              "func" "(" ParamTypeDecls ")" Type'
+                |   "[" "]"
+                |   e
+
+BaseType:           "int"
+                |   "float"
+                |   "bool"
+                |   "char"
+                |   "string"
+                |   "void"
 
 ParamTypeDecls:     Type ParamTypeDecls'
                 |   e
 ParamTypeDecls':    "," Type ParamTypeDecls'
                 |   e
 
-StructDecl: "type" TypeName "struct" "{" FieldDecls "}"
-TypeName:   identifier
+StructDecl:         "type" TypeName "struct" "{" FieldDecls "}"
+TypeName:           identifier
 
-FieldDecls:     FieldDecl FieldDecls
-            |   e
-FieldDecl:      Type Id ";"
+FieldDecls:         FieldDecl FieldDecls
+                |   e
+FieldDecl:          Type Id ";"
 ```
 
 #### Expression Statement
@@ -398,3 +384,67 @@ VarAssign:      Type Id ":=" Expr
 ```text
 While:  "while" "(" Expr ")" NullableStmt
 ```
+
+### Syntaxer
+
+Syntaxer scans the token list given by Lexer, completing following tasks:
+
+- AST construction
+- symbol table generation
+- scope management
+
+AST makes it better to deal with semantic analysis.
+
+#### Parse Algorithm
+
+Syntaxer mainly uses recursive descent analysis, and there may be some look-ahead optimization algorithm to help syntaxer define which production to use next.
+
+Syntaxer does not get all lex tokens from lexer once, but gets one by one. When successfully consuming a token or ignore a token for error recovery, syntaxer gets next token from lexer through calling method `Lexer#next()`. Syntaxer will stop the token iteration when meeting the `EOF` token.
+
+#### Error Handling
+
+Currently the syntaxer will only scan and report the first occurred error, because when meeting one error, the syntaxer will throw an `IllegalStateException`. But we could add some more error recovery algorithms to scan more error and report better error messages.
+
+We may also report warnings instead of only reporting errors. The warnings meaning the statement may be unnecessary or lead some runtime errors.
+
+#### AST
+
+For the above syntax, we designed AST nodes for it. The AST nodes is divided into kinds bellow:
+
+- `Expr`: Expressions which can provide values.
+  - `Operation`: Expressions like: `X Op Y`, either `X` or `Y` could be null.
+  - `Lit`: Expressions which are directly a value.
+    - `BasicLit`: Direct literal value but not identifier.
+    - `FuncLit`: Function's prototype definition, like: `RetType (Params) -> CodeBlock`
+    - `CompositeLit`: Lits which are compose by elements, like: `Type {Ele[0], Ele[1], ...}`, mainly used in array initializations.
+  - `CondExpr`: Ternary expressions like: `X ? Y : X`.
+  - `CallExpr`: Function call like: `FuncName(Params[0], Params[1], ...)`.
+  - `SelectorExpr`: Struct's field value selector, like: `X.Y`.
+  - `IndexExpr`: Get element from array by index, like: `X[Index]`.
+  - `SliceExpr`: Get elements(slice) from array by from and to index, like: `X[index[0], index[1]]`.
+  - `CastExpr`: Cast variable into another type, like: `(Type) X`.
+  - `NameExpr`: Identifiers.
+  - `NewExpr`: Struct or array created by keyword `new`, like: `new(Document)`;
+- `Stmt`: Executable actions.
+  - `CodeBlock`: Representing a new scope.
+  - `SimpleStmt`: Statements which can also provide values.
+    - `AssignExpr`: Expressions like: `X AssignOp Y`, either `X` or `Y` could be null, representing self-assign expressions like: `X++`, `--X`.
+    - `FieldDecl`: Declare *struct fields*, *function params*, *variables* with optional initialization value like: `const Type FieldName = X`, if `X` is not null, there would be an `AssignExpr` as a field.
+    - `CallExpr`
+    - `NewExpr`
+  - `DeclStmt`: Declarations.
+    - `FieldDecl`
+    - `FuncDecl`: Declare a function with function name(`NameExpr`) and prototype(`FuncLit`).
+    - `TypeDecl`: Declare a type.
+      - `StructDecl`: Declare a struct with fields, like: `type StructName struct { FieldDecls }`
+      - `ArrayType`: Declare an array, like: `BaseType []` or `BaseType [Size]`
+      - `FuncType`: Declare a function type, like: `RetType func ( ParamTypes )`.
+      - `BaseType`: Declare base types, like: `int`, `float`, .etc.
+  - `ControlStmt`: Process control actions.
+    - `BreakStmt`
+    - `ContinueStmt`
+    - `RetStmt`
+    - `IfStmt`
+    - `SwitchStmt`
+    - `ForStmt`
+    - `WhileStmt`
