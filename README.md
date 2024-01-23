@@ -62,7 +62,7 @@ Lexer's scan depends on lexical symbols, they can be divided into types:
 ```text
 int  float  bool  char  string  func  void  type  struct
 true  false  null
-new
+new  sizeof  free
 for  while  if  else  elseif  switch  case  default  continue  break  return
 package  import  const
 ```
@@ -147,18 +147,17 @@ ConstDecl:          "const" Type Id ";"
 
 CommonDecl:         Type Id ";"
                 |   Type Id "=" Expr ";"
-                |   Type "func" Id "(" ParamDecls ")" CodeBlock
+                |   Type "func" Id "(" FieldDecls ")" CodeBlock
 
 Id:                 identifier
 
-ParamDecls:         ParamDecl ParamDecls'
+FieldDecls:         FieldDecl FieldDecls'
                 |   e
-ParamDecls':        "," ParamDecl ParamDecls'
+FieldDecls':        "," FieldDecl FieldDecls'
                 |   e
-ParamDecl:          Type Id
+FieldDecl:          Type Id
 
 Type:               BaseType Type'
-                |   TypeName Type'
 Type':              "func" "(" ParamTypeDecls ")" Type'
                 |   "[" "]"
                 |   e
@@ -174,13 +173,6 @@ ParamTypeDecls:     Type ParamTypeDecls'
                 |   e
 ParamTypeDecls':    "," Type ParamTypeDecls'
                 |   e
-
-StructDecl:         "type" TypeName "struct" "{" FieldDecls "}"
-TypeName:           identifier
-
-FieldDecls:         FieldDecl FieldDecls
-                |   e
-FieldDecl:          Type Id ";"
 ```
 
 #### Expression Statement
@@ -266,8 +258,6 @@ UnaryExpr:  PostfixExpr
 
 UnaryOp:    "!"
         |   "~"
-        |   "&"
-        |   "*"
         |   "++"
         |   "--"
 
@@ -275,7 +265,6 @@ PostfixExpr:    PrimExpr PostfixExpr'
 PostfixExpr':   "[" Expr "]" PostfixExpr'
             |   "[" Expr ":" Expr "]" PostfixExpr'
             |   "(" Params ")" PostfixExpr'
-            |   "." Id PostfixExpr'
             |   "++"
             |   "--"
 
@@ -288,7 +277,7 @@ PrimExpr:   Id
         |   Const
         |   "(" Expr ")"
         |   FuncInlineDecl
-        |   NewExpr
+        |   NewArr
 
 Const:  int_lit
     |   float_lit
@@ -298,13 +287,13 @@ Const:  int_lit
     |   "false"
     |   "null"
 
-FuncInlineDecl: Type "(" ParamDecls ")" "->" Stmt
+FuncInlineDecl: Type "(" FieldDecls ")" "->" Stmt
 
-NewExpr:    "new" Type "(" Params ")"
-        |   "new" Type "[" Expr "]"
-        |   "new" Type "[" Expr  "]" "{" Elements "}"
+NewArr:     "new" Type "[" Expr "]"
+        |   "new" Type "[" Expr "]" "{" Elements "}"
 
 Elements:   Expr Elements'
+        |   e
 Elements':  ", " Expr Elements'
         |   e
 ```
@@ -419,24 +408,22 @@ For the above syntax, we designed AST nodes for it. The AST nodes is divided int
     - `CompositeLit`: Lits which are compose by elements, like: `Type {Ele[0], Ele[1], ...}`, mainly used in array initializations.
   - `CondExpr`: Ternary expressions like: `X ? Y : X`.
   - `CallExpr`: Function call like: `FuncName(Params[0], Params[1], ...)`.
-  - `SelectorExpr`: Struct's field value selector, like: `X.Y`.
   - `IndexExpr`: Get element from array by index, like: `X[Index]`.
   - `SliceExpr`: Get elements(slice) from array by from and to index, like: `X[index[0], index[1]]`.
   - `CastExpr`: Cast variable into another type, like: `(Type) X`.
   - `NameExpr`: Identifiers.
-  - `NewExpr`: Struct or array created by keyword `new`, like: `new(Document)`;
+  - `NewArrExpr`: Array created by keyword `new`, like: `new Type[] { Elements }`;
 - `Stmt`: Executable actions.
   - `CodeBlock`: Representing a new scope.
   - `SimpleStmt`: Statements which can also provide values.
     - `AssignExpr`: Expressions like: `X AssignOp Y`, either `X` or `Y` could be null, representing self-assign expressions like: `X++`, `--X`.
-    - `FieldDecl`: Declare *struct fields*, *function params*, *variables* with optional initialization value like: `const Type FieldName = X`, if `X` is not null, there would be an `AssignExpr` as a field.
+    - `FieldDecl`: Declare *function params*, *variables* with optional initialization value like: `const Type FieldName = X`, if `X` is not null, there would be an `AssignExpr` as a field.
     - `CallExpr`
     - `NewExpr`
   - `DeclStmt`: Declarations.
     - `FieldDecl`
     - `FuncDecl`: Declare a function with function name(`NameExpr`) and prototype(`FuncLit`).
     - `TypeDecl`: Declare a type.
-      - `StructDecl`: Declare a struct with fields, like: `type StructName struct { FieldDecls }`
       - `ArrayType`: Declare an array, like: `BaseType []` or `BaseType [Size]`
       - `FuncType`: Declare a function type, like: `RetType func ( ParamTypes )`.
       - `BaseType`: Declare base types, like: `int`, `float`, .etc.
