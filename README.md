@@ -364,8 +364,8 @@ VarAssigns:     VarAssign VarAssigns'
             |   e
 VarAssigns':    "," VarAssign VarAssigns'
             |   e
-VarAssign:      Type Id ":=" Expr
-            |   Id ":=" Expr
+VarAssign:      Type Id "=" Expr
+            |   Id "=" Expr
 ```
 
 ##### While Statement
