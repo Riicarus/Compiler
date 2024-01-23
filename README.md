@@ -144,10 +144,10 @@ Decl:               ConstDecl
 
 ConstDecl:          "const" Type Id ";"
                 |   "const" Type Id "=" Expr ";"
+                |   Type "func" Id "(" FieldDecls ")" CodeBlock
 
 CommonDecl:         Type Id ";"
                 |   Type Id "=" Expr ";"
-                |   Type "func" Id "(" FieldDecls ")" CodeBlock
 
 Id:                 identifier
 
