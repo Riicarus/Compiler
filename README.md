@@ -127,11 +127,7 @@ Stmt:           Decl
             |   Control
             |   CodeBlock
 
-Stmts:          NullableStmt Stmts
-            |   eps
-
-NullableStmt:   Stmt
-            |   ";"
+Stmts:          [ [ Stmt | ";" ] Stmts ]
 ```
 
 #### Declare Statement
@@ -142,23 +138,17 @@ Declare statement contains variable and function declaration, and at the same ti
 Decl:               ConstDecl
                 |   CommonDecl
 
-ConstDecl:          "const" Type Id ";"
-                |   "const" Type Id "=" Expr ";"
+ConstDecl:          "const" Type Id [ "=" Expr ] ";"
                 |   Type "func" Id "(" FieldDecls ")" CodeBlock
 
-CommonDecl:         Type Id ";"
-                |   Type Id "=" Expr ";"
+CommonDecl:         Type Id [ "=" Expr ] ";"
 
 Id:                 identifier
 
-FieldDecls:         FieldDecl FieldDecls'
-                |   e
-FieldDecls':        "," FieldDecl FieldDecls'
-                |   e
-FieldDecl:          Type Id
+FieldDecls:         [ Type Id [ "," FieldDecls ] ]
 
-Type:               BaseType Type'
-Type':              "func" "(" ParamTypeDecls ")" Type'
+Type:               BaseType ExtType
+ExtType:            "func" "(" ParamTypeDecls ")" ExtType
                 |   "[" "]"
                 |   e
 
@@ -169,10 +159,7 @@ BaseType:           "int"
                 |   "string"
                 |   "void"
 
-ParamTypeDecls:     Type ParamTypeDecls'
-                |   e
-ParamTypeDecls':    "," Type ParamTypeDecls'
-                |   e
+ParamTypeDecls:     [ Type [ "," ParamTypeDecls ] ]
 ```
 
 #### Expression Statement
@@ -180,120 +167,68 @@ ParamTypeDecls':    "," Type ParamTypeDecls'
 Expression statement contains all kinks of statement which can return/construct a value.
 
 ```text
-Expr:   AssignExpr
+Expr:           BinaryExpr
 
-AssignExpr: CondExpr
-        |   UnaryExpr AssignOp AssignExpr
+BinaryExpr:     UnaryExpr
+            |   BinaryExpr BinaryOp BinaryExpr
 
-AssignOp:   "="
-        |   "+="
-        |   "-="
-        |   "*="
-        |   "/="
-        |   "%="
-        |   "&="
-        |   "|="
-        |   "^="
-        |   "<<="
-        |   ">>="
+BinaryOp:       "==" | "!=" | "<" | "<=" | ">" | ">="
+            |   "+"| "-" | "*" | "/" | "%" | "|" | "^" | "<<" | ">>"
+            |   "=" | "+=" | "-=" | "*=" | "/=" | "%=" | "&=" | "|=" | "^=" | "<<=" | ">>="
+            |   "&&" | "||"
 
-CondExpr:   LorExpr
-        |   LorExpr "?" Expr : Expr
+UnaryExpr:      PrimaryExpr
+            |   UnaryOp UnaryExpr
 
-LorExpr:    LandExpr LorExpr'
-LorExpr':   "||" LandExpr LorExpr'
-        |   e
+UnaryOp:        "!" | "~"
+            |   "++" | "--"
 
-LandExpr:   OrExpr LandExpr'
-LandExpr':  "&&" OrExpr LandExpr'
-        |   e
+Operand:        Literal
+            |   Identifier
+            |   MethodExpr
+            |   "(" Expr ")"
+            |   NewArr
 
-OrExpr:     XorExpr OrExpr'
-OrExpr':    "|" XorExpr OrExpr'
-        |   e
+Literal:        BasicLit
+            |   CompositeLit
+            |   FunctionLit
 
-XorExpr:    AndExpr XorExpr'
-XorExpr':   "^" AndExpr XorExpr'
-        |   e
+BasicLit:       int_lit
+            |   float_lit
+            |   char_lit
+            |   string_lit
+            |   "true"
+            |   "false"
+            |   "null"
 
-AndExpr:    EqExpr AndExpr'
-AndExpr':   "&" EqExpr AndExpr'
-        |   e
+CompositeLit:   "{" Elements "}"
 
-EqExpr:     RelExpr EqExpr'
-EqExpr':    "==" RelExpr EqExpr'
-        |   "!=" RelExpr EqExpr'
-        |   e
+Elements:       [ Expr | CompositeLit ] [ "," Elements ]
 
-RelExpr:    ShiftExpr RelExpr'
-RelExpr':   RelOp ShiftExpr RelExpr'
-        |   e
+FuncLit:        Type "(" FieldDecls ")" "->" Stmt
 
-RelOp:  ">"
-    |   ">="
-    |   "<"
-    |   "<="
+NewArr:         "new" Type "[" Expr "]" [ CompositeList ]
 
-ShiftExpr:  AddExpr ShiftExpr'
-ShiftExpr': "<<" AddExpr ShiftExpr'
-        |   ">>" AddExpr ShiftExpr'
-        |   e
+PrimaryExpr:    Operand
+            |   Conversion
+            |   PrimaryExpr Selector
+            |   PrimaryExpr Index
+            |   PrimaryExpr Slice
+            |   PrimaryExpr TypeAssert
+            |   PrimaryExpr Arguments
+            |   PrimaryExpr [ "++" | "--" ]
 
-AddExpr:    MulExpr AddExpr'
-AddExpr':   "+" MulExpr AddExpr'
-        |   "-" MulExpr AddExpr'
-        |   e
+Selector:       "." Identifier
 
-MulExpr:    UnaryExpr MulExpr'
-MulExpr':   "*" UnaryExpr MulExpr'
-        |   "-" UnaryExpr MulExpr'
-        |   "%" UnaryExpr MulExpr'
-        |   e
+Index:          "[" Expr "]"
 
-UnaryExpr:  PostfixExpr
-        |   UnaryOp UnaryExpr
+Slice:          "[" Expr ":" Expr "]"
 
-UnaryOp:    "!"
-        |   "~"
-        |   "++"
-        |   "--"
+TypeAssert:     "." "(" Type ")"
 
-PostfixExpr:    PrimExpr PostfixExpr'
-PostfixExpr':   "[" Expr "]" PostfixExpr'
-            |   "[" Expr ":" Expr "]" PostfixExpr'
-            |   "." "(" Type ")" PostfixExpr'
-            |   "(" Params ")" PostfixExpr'
-            |   "++"
-            |   "--"
+Arguments:      "(" Exprs ")"
 
-Params:     Expr Params'
-        |   e
-Params':    "," Expr Params'
-        |   e
-
-PrimExpr:   Id
-        |   Const
-        |   "(" Expr ")"
-        |   FuncInlineDecl
-        |   NewArr
-
-Const:  int_lit
-    |   float_lit
-    |   char_lit
-    |   string_lit
-    |   "true"
-    |   "false"
-    |   "null"
-
-FuncInlineDecl: Type "(" FieldDecls ")" "->" Stmt
-
-NewArr:     "new" Type "[" Expr "]"
-        |   "new" Type "[" Expr "]" "{" Elements "}"
-
-Elements:   Expr Elements'
-        |   e
-Elements':  ", " Expr Elements'
-        |   e
+Exprs:          Expr [ "," Exprs ]
 ```
 
 #### Control Statement
@@ -313,24 +248,21 @@ Break:      "break" ";"
 
 Continue:   "continue" ";"
 
-Return:     "return" ";"
-        |   "return" Expr ";"
+Return:     "return" [ Expr ] ";"
 ```
 
 ##### If Statement
 
 ```text
-If:         "if" "(" Expr ")" NullableStmt Else
+If:         "if" "(" Expr ")" [ Stmt | ";" ] Else
 
 Else:       ElseIfs EndElse
 
-ElseIfs:    ElseIf ElseIfs
-        |   e
+ElseIfs:    [ ElseIf ElseIfs ]
 
-ElseIf:     "elseif" "(" Expr ")" NullableStmt
+ElseIf:     "elseif" "(" Expr ")" [ Stmt | ";" ]
 
-EndElse:    "else" NullableStmt
-        |   e
+EndElse:    [ "else" [ Stmt | ";" ] ]
 ```
 
 ##### Switch Statement
@@ -338,30 +270,20 @@ EndElse:    "else" NullableStmt
 ```text
 Switch:         "switch" "(" Expr ")" "{" Cases "}"
 
-Cases:          Case Cases
-            |   DefaultCase
-            |   e
-
-Case:           "case" Expr ":" Stmt
-DefaultCase:    "default" ":" Stmt
+Cases:          [ { "case" Expr ":" Stmt Cases } | { "default" ":" Stmt } ]
 ```
 
 ##### For Statement
 
 ```text
-For:            "for" "(" ForInits ";" ForCond ";" ForUpdate ")" NullableStmt
+For:            "for" "(" ForInits ";" [ Expr ] ";" ForUpdate ")" [ Stmt | ";" ]
 
 ForInits:       VarAssigns
 
-ForCond:        Expr
-            |   e
-
 ForUpdate:      VarAssigns
 
-VarAssigns:     VarAssign VarAssigns'
-            |   e
-VarAssigns':    "," VarAssign VarAssigns'
-            |   e
+VarAssigns:     [ VarAssign [ "," VarAssigns ] ]
+
 VarAssign:      Type Id "=" Expr
             |   Id "=" Expr
 ```
@@ -369,7 +291,7 @@ VarAssign:      Type Id "=" Expr
 ##### While Statement
 
 ```text
-While:  "while" "(" Expr ")" NullableStmt
+While:  "while" "(" Expr ")" [ Stmt | ";" ]
 ```
 
 ### Syntaxer
