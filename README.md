@@ -127,7 +127,7 @@ Stmt:           Decl
             |   Control
             |   CodeBlock
 
-Stmts:          [ [ Stmt | ";" ] Stmts ]
+Stmts:          [ { Stmt | ";" } Stmts ]
 ```
 
 #### Declare Statement
