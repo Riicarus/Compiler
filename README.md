@@ -202,7 +202,7 @@ Elements:       [ Expr | CompositeLit ] [ "," Elements ]
 
 FuncLit:        Type "(" FieldDecls ")" "->" Stmt
 
-NewArr:         "new" Type "[" Expr "]" [ CompositeList ]
+NewArr:         "new" Type "[" Expr "]" [ CompositeLit ]
 
 PrimaryExpr:    Operand
             |   Conversion
