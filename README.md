@@ -244,17 +244,14 @@ AddExpr':   "+" MulExpr AddExpr'
         |   "-" MulExpr AddExpr'
         |   e
 
-MulExpr:    CastExpr MulExpr'
-MulExpr':   "*" CastExpr MulExpr'
-        |   "-" CastExpr MulExpr'
-        |   "%" CastExpr MulExpr'
+MulExpr:    UnaryExpr MulExpr'
+MulExpr':   "*" UnaryExpr MulExpr'
+        |   "-" UnaryExpr MulExpr'
+        |   "%" UnaryExpr MulExpr'
         |   e
 
-CastExpr:   UnaryExpr
-        |   "(" Type ")" CastExpr
-
 UnaryExpr:  PostfixExpr
-        |   UnaryOp CastExpr
+        |   UnaryOp UnaryExpr
 
 UnaryOp:    "!"
         |   "~"
@@ -264,6 +261,7 @@ UnaryOp:    "!"
 PostfixExpr:    PrimExpr PostfixExpr'
 PostfixExpr':   "[" Expr "]" PostfixExpr'
             |   "[" Expr ":" Expr "]" PostfixExpr'
+            |   "." "(" Type ")" PostfixExpr'
             |   "(" Params ")" PostfixExpr'
             |   "++"
             |   "--"
