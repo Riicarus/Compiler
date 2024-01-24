@@ -145,9 +145,6 @@ FieldDecls:         [ FieldDecl [ "," FieldDecls ] ]
 FieldDecl:          Type Id [ "=" Expr ]
 
 Type:               BaseType ExtType
-ExtType:            "func" "(" ParamTypeDecls ")" ExtType
-                |   "[" "]"
-                |   e
 
 BaseType:           "int"
                 |   "float"
@@ -155,6 +152,8 @@ BaseType:           "int"
                 |   "char"
                 |   "string"
                 |   "void"
+
+ExtType:            [ { "func" "(" ParamTypeDecls ")" ExtType } | { "[" "]" } ]
 
 ParamTypeDecls:     [ Type [ "," ParamTypeDecls ] ]
 ```
