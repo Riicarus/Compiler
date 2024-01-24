@@ -181,13 +181,12 @@ UnaryOp:        "!" | "~"
 
 Operand:        Literal
             |   Id
-            |   MethodExpr
             |   "(" Expr ")"
             |   NewArr
 
 Literal:        BasicLit
             |   CompositeLit
-            |   FunctionLit
+            |   FuncLit
 
 BasicLit:       int_lit
             |   float_lit
