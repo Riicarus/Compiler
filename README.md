@@ -135,17 +135,14 @@ Stmts:          [ [ Stmt | ";" ] Stmts ]
 Declare statement contains variable and function declaration, and at the same time the init assignment is also acceptable.
 
 ```text
-Decl:               ConstDecl
-                |   CommonDecl
-
-ConstDecl:          "const" Type Id [ "=" Expr ] ";"
+Decl:               [ "const" ] Type Id [ "=" Expr ] ";"
                 |   Type "func" Id "(" FieldDecls ")" CodeBlock
-
-CommonDecl:         Type Id [ "=" Expr ] ";"
 
 Id:                 identifier
 
-FieldDecls:         [ Type Id [ "," FieldDecls ] ]
+FieldDecls:         [ FieldDecl [ "," FieldDecls ] ]
+
+FieldDecl:          Type Id [ "=" Expr ]
 
 Type:               BaseType ExtType
 ExtType:            "func" "(" ParamTypeDecls ")" ExtType
@@ -184,7 +181,7 @@ UnaryOp:        "!" | "~"
             |   "++" | "--"
 
 Operand:        Literal
-            |   Identifier
+            |   Id
             |   MethodExpr
             |   "(" Expr ")"
             |   NewArr
@@ -218,7 +215,7 @@ PrimaryExpr:    Operand
             |   PrimaryExpr Arguments
             |   PrimaryExpr [ "++" | "--" ]
 
-Selector:       "." Identifier
+Selector:       "." Id
 
 Index:          "[" Expr "]"
 
@@ -276,16 +273,16 @@ Cases:          [ { "case" Expr ":" Stmt Cases } | { "default" ":" Stmt } ]
 ##### For Statement
 
 ```text
-For:            "for" "(" ForInits ";" [ Expr ] ";" ForUpdate ")" [ Stmt | ";" ]
-
-ForInits:       VarAssigns
-
-ForUpdate:      VarAssigns
+For:            "for" "(" VarAssigns ";" [ Expr ] ";" VarAssigns ")" [ Stmt | ";" ]
 
 VarAssigns:     [ VarAssign [ "," VarAssigns ] ]
 
-VarAssign:      Type Id "=" Expr
-            |   Id "=" Expr
+VarAssign:      FieldDecl
+            |   Id AssignOp Expr
+            |   PrimaryExpr [ "++" | "--" ]
+            |   [ "++" | "--" ] PrimaryExpr
+
+AssignOp:       "=" | "+=" | "-=" | "*=" | "/=" | "%=" | "&=" | "|=" | "^=" | "<<=" | ">>="
 ```
 
 ##### While Statement
