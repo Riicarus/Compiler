@@ -249,15 +249,15 @@ Return:     "return" [ Expr ] ";"
 ##### If Statement
 
 ```text
-If:         "if" "(" Expr ")" [ Stmt | ";" ] Else
+If:         "if" "(" Expr ")" { Stmt | ";" } Else
 
 Else:       ElseIfs EndElse
 
 ElseIfs:    [ ElseIf ElseIfs ]
 
-ElseIf:     "elseif" "(" Expr ")" [ Stmt | ";" ]
+ElseIf:     "elseif" "(" Expr ")" { Stmt | ";" }
 
-EndElse:    [ "else" [ Stmt | ";" ] ]
+EndElse:    [ "else" { Stmt | ";" } ]
 ```
 
 ##### Switch Statement
@@ -271,7 +271,7 @@ Cases:          [ { "case" Expr ":" Stmt Cases } | { "default" ":" Stmt } ]
 ##### For Statement
 
 ```text
-For:            "for" "(" SimpleStmts ";" [ Expr ] ";" SimpleStmts ")" [ Stmt | ";" ]
+For:            "for" "(" SimpleStmts ";" [ Expr ] ";" SimpleStmts ")" { Stmt | ";" }
 
 AssignOp:       "=" | "+=" | "-=" | "*=" | "/=" | "%=" | "&=" | "|=" | "^=" | "<<=" | ">>="
 ```
@@ -279,7 +279,7 @@ AssignOp:       "=" | "+=" | "-=" | "*=" | "/=" | "%=" | "&=" | "|=" | "^=" | "<
 ##### While Statement
 
 ```text
-While:  "while" "(" Expr ")" [ Stmt | ";" ]
+While:  "while" "(" Expr ")" { Stmt | ";" }
 ```
 
 ### Syntaxer
