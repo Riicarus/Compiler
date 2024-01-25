@@ -150,14 +150,14 @@ FieldDecl:          Type Id [ "=" Expr ]
 
 Type:               BasicType ExtType
 
-BasicType:           "int"
+BasicType:          "int"
                 |   "float"
                 |   "bool"
                 |   "char"
                 |   "string"
                 |   "void"
 
-ExtType:            [ { "func" "(" ParamTypeDecls ")" ExtType } | { "[" "]" } ]
+ExtType:            [ { { "func" "(" ParamTypeDecls ")" } | { "[" "]" } } ExtType ]
 
 ParamTypeDecls:     [ Type [ "," ParamTypeDecls ] ]
 ```

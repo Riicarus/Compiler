@@ -276,7 +276,7 @@ public class Syntaxer {
                     if (got(LexSymbol.RBRACK))  // "[" "]"
                         throw new IllegalStateException("Expect operand");
 
-                    if (is(LexSymbol.COLON)) {  // "[" ":" [ Expr ] "]"
+                    if (got(LexSymbol.COLON)) {  // "[" ":" [ Expr ] "]"
                         final SliceExpr t = new SliceExpr();
                         t.setX(x);
                         t.setPosition(pos);
@@ -393,7 +393,6 @@ public class Syntaxer {
         if (is(LexSymbol.LBRACE)) {
             final CompositeLit elements = compositeLit();
             x.setLit(elements);
-            want(LexSymbol.RBRACE);
         }
 
         return x;
@@ -897,12 +896,12 @@ public class Syntaxer {
     private TypeDecl typeDecl() {
         debug("TypeDecl");
 
-        BasicType basicType = basicType();
-
-        TypeDecl x;
-        if (is(LexSymbol.FUNC) && LexSymbol.LPAREN.equals(preview().getSymbol())) x = funcType(basicType);
-        else if (got(LexSymbol.LBRACK)) x = arrayType(basicType);
-        else x = basicType;
+        TypeDecl x = basicType();
+        for (;;) {
+            if (is(LexSymbol.FUNC) && LexSymbol.LPAREN.equals(preview().getSymbol())) x = funcType(x);
+            else if (is(LexSymbol.LBRACK) && LexSymbol.RBRACK.equals(preview().getSymbol())) x = arrayType(x);
+            else break;
+        }
 
         return x;
     }
@@ -926,9 +925,16 @@ public class Syntaxer {
         return x;
     }
 
+    /**
+     * ArrayType:   Type "[" "]"
+     *
+     * @param baseType TypeDecl
+     * @return ArrayType
+     */
     private ArrayType arrayType(TypeDecl baseType) {
         debug("ArrayType");
 
+        want(LexSymbol.LBRACK);
         want(LexSymbol.RBRACK);
         final ArrayType x = new ArrayType();
         x.setPosition(baseType.getPosition());
