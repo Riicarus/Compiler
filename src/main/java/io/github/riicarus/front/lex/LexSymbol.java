@@ -2,6 +2,7 @@ package io.github.riicarus.front.lex;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Lexical symbols, including reserved words, op/assistant symbols, identifiers, numbers, .etc.
@@ -30,9 +31,9 @@ public enum LexSymbol {
     // new
     NEW("new"),
     // value
-    TRUE(LitKind.TRUE.getName()),
-    FALSE(LitKind.FALSE.getName()),
-    NULL(LitKind.NULL.getName()),
+    TRUE("true"),
+    FALSE("false"),
+    NULL("null"),
     // control
     FOR("for"),
     WHILE("while"),
@@ -52,10 +53,10 @@ public enum LexSymbol {
 
     // literal
     IDENT("identifier"),
-    INT_LIT(LitKind.INT.getName()),
-    FLOAT_LIT(LitKind.FLOAT.getName()),
-    CHAR_LIT(LitKind.CHAR.getName()),
-    STRING_LIT(LitKind.STRING.getName()),
+    INT_LIT("int_lit"),
+    FLOAT_LIT("float_lit"),
+    CHAR_LIT("char_lit"),
+    STRING_LIT("string_lit"),
 
     // op/assistant symbols
     // rel
@@ -155,6 +156,26 @@ public enum LexSymbol {
     public static LexSymbol lookUpReserved(String lexeme) {
         return reservedWordMap.get(lexeme);
     }
+
+    public static final Set<LexSymbol> LIT_SET = Set.of(
+            INT_LIT,
+            FLOAT_LIT,
+            CHAR_LIT,
+            STRING_LIT,
+            TRUE,
+            FALSE,
+            NULL
+    );
+
+    public static final Set<LexSymbol> TYPE_SET = Set.of(
+            INT,
+            FLOAT,
+            BOOL,
+            CHAR,
+            STRING,
+            FUNC,
+            VOID
+    );
 
     public String getName() {
         return name;

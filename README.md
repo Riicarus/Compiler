@@ -122,12 +122,16 @@ Program:        Stmts
 
 CodeBlock:      "{" Stmts "}"
 
+Stmts:          [ Stmt Stmts ]
+
 Stmt:           Decl
             |   Expr ";"
             |   Control
             |   CodeBlock
+            |   ";"
 
-Stmts:          [ { Stmt | ";" } Stmts ]
+SimpleStmt:     FieldDecl
+            |   Expr
 ```
 
 #### Declare Statement
@@ -144,9 +148,9 @@ FieldDecls:         [ FieldDecl [ "," FieldDecls ] ]
 
 FieldDecl:          Type Id [ "=" Expr ]
 
-Type:               BaseType ExtType
+Type:               BasicType ExtType
 
-BaseType:           "int"
+BasicType:           "int"
                 |   "float"
                 |   "bool"
                 |   "char"
@@ -177,7 +181,6 @@ UnaryExpr:      PrimaryExpr
             |   UnaryOp UnaryExpr
 
 UnaryOp:        "!" | "~"
-            |   "++" | "--"
 
 Operand:        Literal
             |   Id
@@ -205,19 +208,16 @@ FuncLit:        Type "(" FieldDecls ")" "->" Stmt
 NewArr:         "new" Type "[" Expr "]" [ CompositeLit ]
 
 PrimaryExpr:    Operand
-            |   Conversion
-            |   PrimaryExpr Selector
             |   PrimaryExpr Index
             |   PrimaryExpr Slice
             |   PrimaryExpr TypeAssert
             |   PrimaryExpr Arguments
-            |   PrimaryExpr [ "++" | "--" ]
-
-Selector:       "." Id
+            |   { "++" | "--" } PrimaryExpr
+            |   PrimaryExpr { "++" | "--" }
 
 Index:          "[" Expr "]"
 
-Slice:          "[" Expr ":" Expr "]"
+Slice:          "[" [ Expr ] ":" [ Expr ] "]"
 
 TypeAssert:     "." "(" Type ")"
 
@@ -271,14 +271,7 @@ Cases:          [ { "case" Expr ":" Stmt Cases } | { "default" ":" Stmt } ]
 ##### For Statement
 
 ```text
-For:            "for" "(" VarAssigns ";" [ Expr ] ";" VarAssigns ")" [ Stmt | ";" ]
-
-VarAssigns:     [ VarAssign [ "," VarAssigns ] ]
-
-VarAssign:      FieldDecl
-            |   Id AssignOp Expr
-            |   PrimaryExpr [ "++" | "--" ]
-            |   [ "++" | "--" ] PrimaryExpr
+For:            "for" "(" SimpleStmts ";" [ Expr ] ";" SimpleStmts ")" [ Stmt | ";" ]
 
 AssignOp:       "=" | "+=" | "-=" | "*=" | "/=" | "%=" | "&=" | "|=" | "^=" | "<<=" | ">>="
 ```
@@ -321,7 +314,6 @@ For the above syntax, we designed AST nodes for it. The AST nodes is divided int
     - `BasicLit`: Direct literal value but not identifier.
     - `FuncLit`: Function's prototype definition, like: `RetType (Params) -> CodeBlock`
     - `CompositeLit`: Lits which are compose by elements, like: `Type {Ele[0], Ele[1], ...}`, mainly used in array initializations.
-  - `CondExpr`: Ternary expressions like: `X ? Y : X`.
   - `CallExpr`: Function call like: `FuncName(Params[0], Params[1], ...)`.
   - `IndexExpr`: Get element from array by index, like: `X[Index]`.
   - `SliceExpr`: Get elements(slice) from array by from and to index, like: `X[index[0], index[1]]`.
@@ -331,17 +323,15 @@ For the above syntax, we designed AST nodes for it. The AST nodes is divided int
 - `Stmt`: Executable actions.
   - `CodeBlock`: Representing a new scope.
   - `SimpleStmt`: Statements which can also provide values.
-    - `AssignExpr`: Expressions like: `X AssignOp Y`, either `X` or `Y` could be null, representing self-assign expressions like: `X++`, `--X`.
+    - `Expr`: Expressions like: `X AssignOp Y`, either `X` or `Y` could be null, representing self-assign expressions like: `X++`, `--X`.
     - `FieldDecl`: Declare *function params*, *variables* with optional initialization value like: `const Type FieldName = X`, if `X` is not null, there would be an `AssignExpr` as a field.
-    - `CallExpr`
-    - `NewExpr`
   - `DeclStmt`: Declarations.
     - `FieldDecl`
     - `FuncDecl`: Declare a function with function name(`NameExpr`) and prototype(`FuncLit`).
     - `TypeDecl`: Declare a type.
-      - `ArrayType`: Declare an array, like: `BaseType []` or `BaseType [Size]`
+      - `ArrayType`: Declare an array, like: `BasicType []` or `BasicType [Size]`
       - `FuncType`: Declare a function type, like: `RetType func ( ParamTypes )`.
-      - `BaseType`: Declare base types, like: `int`, `float`, .etc.
+      - `BasicType`: Declare base types, like: `int`, `float`, .etc.
   - `ControlStmt`: Process control actions.
     - `BreakStmt`
     - `ContinueStmt`

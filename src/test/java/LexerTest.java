@@ -20,5 +20,4 @@ public class LexerTest {
             e.printStackTrace();
         }
     }
-
 }

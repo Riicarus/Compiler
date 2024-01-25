@@ -120,6 +120,7 @@ public class Lexer {
                 number += floatNum;
                 if (floatNum.length() == 0) return new IllegalToken(number, position, "Empty float suffix");
             }
+            if (!isFloat) contract();
             return new Token(isFloat ? LexSymbol.FLOAT_LIT : LexSymbol.INT_LIT, number, position);
         }
         // string
