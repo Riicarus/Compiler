@@ -212,8 +212,9 @@ PrimaryExpr:    Operand
             |   PrimaryExpr Slice
             |   PrimaryExpr TypeAssert
             |   PrimaryExpr Arguments
-            |   { "++" | "--" } PrimaryExpr
             |   PrimaryExpr { "++" | "--" }
+            |   { "++" | "--" } PrimaryExpr
+            |   "sizeof" "(" PrimaryExpr ")"
 
 Index:          "[" Expr "]"
 
@@ -319,7 +320,8 @@ For the above syntax, we designed AST nodes for it. The AST nodes is divided int
   - `SliceExpr`: Get elements(slice) from array by from and to index, like: `X[index[0], index[1]]`.
   - `CastExpr`: Cast variable into another type, like: `(Type) X`.
   - `NameExpr`: Identifiers.
-  - `NewArrExpr`: Array created by keyword `new`, like: `new Type[] { Elements }`;
+  - `NewArrExpr`: Array created by keyword `new`, like: `new Type[] { Elements }`
+  - `SizeExpr`: Get array size like: `sizeof(X)`
 - `Stmt`: Executable actions.
   - `CodeBlock`: Representing a new scope.
   - `SimpleStmt`: Statements which can also provide values.

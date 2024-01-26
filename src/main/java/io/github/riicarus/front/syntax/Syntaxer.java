@@ -230,6 +230,7 @@ public class Syntaxer {
     /**
      * PrimaryExpr: Operand <br/>
      * |    { "++" | "--" } PrimaryExpr <br/>
+     * |    "sizeof" "(" PrimaryExpr ")" <br/>
      * |    PrimaryExpr Index <br/>
      * |    PrimaryExpr Slice <br/>
      * |    PrimaryExpr TypeAssert <br/>
@@ -256,6 +257,13 @@ public class Syntaxer {
                 case DEC -> {
                     final DecExpr t = new DecExpr();
                     t.setPreOrPost(true);
+                    t.setPosition(token.getPosition());
+                    next();
+                    t.setX(primaryExpr(null));
+                    x = t;
+                }
+                case SIZE_OF -> {
+                    final SizeExpr t = new SizeExpr();
                     t.setPosition(token.getPosition());
                     next();
                     t.setX(primaryExpr(null));

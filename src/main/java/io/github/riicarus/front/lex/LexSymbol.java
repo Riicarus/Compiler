@@ -30,6 +30,7 @@ public enum LexSymbol {
     STRUCT("struct"),
     // new
     NEW("new"),
+    SIZE_OF("sizeof"),
     // value
     TRUE("true"),
     FALSE("false"),
@@ -134,6 +135,7 @@ public enum LexSymbol {
         reservedWordMap.put(TYPE.name, TYPE);
         reservedWordMap.put(STRUCT.name, STRUCT);
         reservedWordMap.put(NEW.name, NEW);
+        reservedWordMap.put(SIZE_OF.name, SIZE_OF);
         reservedWordMap.put(TRUE.name, TRUE);
         reservedWordMap.put(FALSE.name, FALSE);
         reservedWordMap.put(NULL.name, NULL);
