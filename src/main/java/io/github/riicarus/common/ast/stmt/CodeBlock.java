@@ -13,15 +13,14 @@ import java.util.List;
  * @since 1.0.0
  */
 public final class CodeBlock extends Stmt {
-    private final List<Stmt> stmts = new ArrayList<>();
+    private List<Stmt> stmts = new ArrayList<>();
 
     public List<Stmt> getStmts() {
         return stmts;
     }
 
     public void setStmts(List<Stmt> stmts) {
-        this.stmts.clear();
-        this.stmts.addAll(stmts);
+        this.stmts = stmts;
     }
 
     @Override

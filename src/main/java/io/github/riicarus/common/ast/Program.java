@@ -12,11 +12,10 @@ import java.util.List;
  */
 public class Program extends ASTNode {
 
-    private final List<Stmt> stmts = new ArrayList<>();
+    private List<Stmt> stmts = new ArrayList<>();
 
     public void setStmts(List<Stmt> stmts) {
-        this.stmts.clear();
-        this.stmts.addAll(stmts);
+        this.stmts = stmts;
     }
 
     public List<Stmt> getStmts() {
