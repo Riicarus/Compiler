@@ -1,9 +1,6 @@
 package io.github.riicarus.common.ast.stmt.ctrl;
 
-import io.github.riicarus.common.ast.Ctrl;
-import io.github.riicarus.common.ast.Expr;
-import io.github.riicarus.common.ast.Stmt;
-import io.github.riicarus.common.ast.SimpleStmt;
+import io.github.riicarus.common.ast.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,9 +13,9 @@ import java.util.List;
  * @since 1.0.0
  */
 public final class ForStmt extends Ctrl {
-    private final List<SimpleStmt> inits = new ArrayList<>();
+    private List<SimpleStmt> inits = new ArrayList<>();
     private Expr cond;
-    private final List<SimpleStmt> updates = new ArrayList<>();
+    private List<SimpleStmt> updates = new ArrayList<>();
     private Stmt body;
 
     public List<SimpleStmt> getInits() {
@@ -26,8 +23,7 @@ public final class ForStmt extends Ctrl {
     }
 
     public void setInits(List<SimpleStmt> inits) {
-        this.inits.clear();
-        this.inits.addAll(inits);
+        this.inits = inits;
     }
 
     public Expr getCond() {
@@ -43,8 +39,7 @@ public final class ForStmt extends Ctrl {
     }
 
     public void setUpdates(List<SimpleStmt> updates) {
-        this.updates.clear();
-        this.updates.addAll(updates);
+        this.updates = updates;
     }
 
     public Stmt getBody() {
@@ -53,5 +48,21 @@ public final class ForStmt extends Ctrl {
 
     public void setBody(Stmt body) {
         this.body = body;
+    }
+
+    @Override
+    public String toTreeString(int level, String prefix) {
+        StringBuilder sb = new StringBuilder();
+        String t = "\t".repeat(Math.max(0, level - 1));
+        String link = level == 0 ? "" : "|--- ";
+
+        if (level != 0) sb.append("\r\n");
+
+        sb.append(prefix).append(t).append(link).append("For")
+                .append(cond == null ? "" : cond.toTreeString(level + 1, prefix))
+                .append(body == null ? "" : body.toTreeString(level + 1, prefix));
+        inits.forEach(i -> sb.append(((ASTNode) i).toTreeString(level + 1, prefix)));
+        updates.forEach(u -> sb.append(((ASTNode) u).toTreeString(level + 1, prefix)));
+        return sb.toString();
     }
 }

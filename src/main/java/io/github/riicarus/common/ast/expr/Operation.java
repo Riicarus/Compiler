@@ -38,4 +38,19 @@ public class Operation extends Expr {
     public void setY(Expr y) {
         this.y = y;
     }
+
+    @Override
+    public String toTreeString(int level, String prefix) {
+        StringBuilder sb = new StringBuilder();
+        String t = "\t".repeat(Math.max(0, level - 1));
+        String link = level == 0 ? "" : "|--- ";
+
+        if (level != 0) sb.append("\r\n");
+
+        sb.append(prefix).append(t).append(link).append("Operation  ").append(op.getOp())
+                .append(x == null ? "" : x.toTreeString(level + 1, prefix))
+                .append(y == null ? "" : y.toTreeString(level + 1, prefix));
+
+        return sb.toString();
+    }
 }

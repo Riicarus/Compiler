@@ -19,4 +19,16 @@ public final class NameExpr extends Expr {
     public void setValue(String value) {
         this.value = value;
     }
+
+    @Override
+    public String toTreeString(int level, String prefix) {
+        StringBuilder sb = new StringBuilder();
+        String t = "\t".repeat(Math.max(0, level - 1));
+        String link = level == 0 ? "" : "|--- ";
+
+        if (level != 0) sb.append("\r\n");
+
+        sb.append(prefix).append(t).append(link).append("Name  ").append(value);
+        return sb.toString();
+    }
 }

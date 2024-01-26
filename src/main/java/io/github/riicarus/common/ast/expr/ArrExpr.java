@@ -39,4 +39,20 @@ public final class ArrExpr extends Expr {
     public void setLit(CompositeLit lit) {
         this.lit = lit;
     }
+
+    @Override
+    public String toTreeString(int level, String prefix) {
+        StringBuilder sb = new StringBuilder();
+        String t = "\t".repeat(Math.max(0, level - 1));
+        String link = level == 0 ? "" : "|--- ";
+
+        if (level != 0) sb.append("\r\n");
+
+        sb.append(prefix).append(t).append(link).append("Array")
+                .append(type.toTreeString(level + 1, prefix))
+                .append(size.toTreeString(level + 1, prefix))
+                .append(lit == null ? "" : lit.toTreeString(level + 1, prefix));
+
+        return sb.toString();
+    }
 }

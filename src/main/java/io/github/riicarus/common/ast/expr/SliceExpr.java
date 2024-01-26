@@ -37,4 +37,19 @@ public final class SliceExpr extends Expr {
     public void setIndex2(Expr index2) {
         this.index2 = index2;
     }
+
+    @Override
+    public String toTreeString(int level, String prefix) {
+        StringBuilder sb = new StringBuilder();
+        String t = "\t".repeat(Math.max(0, level - 1));
+        String link = level == 0 ? "" : "|--- ";
+
+        if (level != 0) sb.append("\r\n");
+
+        sb.append(prefix).append(t).append(link).append("Slice")
+                .append(x.toTreeString(level + 1, prefix))
+                .append(index1 == null ? "" : index1.toTreeString(level + 1, prefix))
+                .append(index2 == null ? "" : index2.toTreeString(level + 1, prefix));
+        return sb.toString();
+    }
 }

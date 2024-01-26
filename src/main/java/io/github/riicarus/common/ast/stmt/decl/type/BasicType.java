@@ -9,13 +9,45 @@ package io.github.riicarus.common.ast.stmt.decl.type;
  */
 public final class BasicType extends TypeDecl {
 
-    public static final BasicType INT = new BasicType();
-    public static final BasicType FLOAT = new BasicType();
-    public static final BasicType BOOL = new BasicType();
-    public static final BasicType CHAR = new BasicType();
-    public static final BasicType STRING = new BasicType();
-    public static final BasicType VOID = new BasicType();
+    private final String name;
 
+    public BasicType(String name) {
+        this.name = name;
+    }
 
+    public static BasicType INT() {
+        return new BasicType("int");
+    }
 
+    public static BasicType FLOAT() {
+        return new BasicType("float");
+    }
+
+    public static BasicType BOOL() {
+        return new BasicType("bool");
+    }
+
+    public static BasicType CHAR() {
+        return new BasicType("char");
+    }
+
+    public static BasicType STRING() {
+        return new BasicType("string");
+    }
+
+    public static BasicType VOID() {
+        return new BasicType("void");
+    }
+
+    @Override
+    public String toTreeString(int level, String prefix) {
+        StringBuilder sb = new StringBuilder();
+        String t = "\t".repeat(Math.max(0, level - 1));
+        String link = level == 0 ? "" : "|--- ";
+
+        if (level != 0) sb.append("\r\n");
+
+        sb.append(prefix).append(t).append(link).append("BasicType  ").append(name);
+        return sb.toString();
+    }
 }

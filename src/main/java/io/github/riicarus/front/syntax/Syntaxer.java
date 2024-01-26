@@ -918,12 +918,12 @@ public class Syntaxer {
         debug("BasicType");
 
         BasicType x = switch (token.getSymbol()) {
-            case INT -> BasicType.INT;
-            case FLOAT -> BasicType.FLOAT;
-            case BOOL -> BasicType.BOOL;
-            case CHAR -> BasicType.CHAR;
-            case STRING -> BasicType.STRING;
-            case VOID -> BasicType.VOID;
+            case INT -> BasicType.INT();
+            case FLOAT -> BasicType.FLOAT();
+            case BOOL -> BasicType.BOOL();
+            case CHAR -> BasicType.CHAR();
+            case STRING -> BasicType.STRING();
+            case VOID -> BasicType.VOID();
             default -> throw new IllegalStateException("Illegal basic type");
         };
 
@@ -964,7 +964,7 @@ public class Syntaxer {
         x.setRetType(retType);
 
         want(LexSymbol.LPAREN);
-        List<TypeDecl> paramTypeDecls = new ArrayList<>();
+        final List<TypeDecl> paramTypeDecls = new ArrayList<>();
         Position position = list("func param type decl", LexSymbol.COMMA, LexSymbol.RPAREN, token -> {
             paramTypeDecls.add(typeDecl());
             return false;

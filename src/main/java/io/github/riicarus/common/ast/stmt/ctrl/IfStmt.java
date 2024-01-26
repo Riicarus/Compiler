@@ -17,7 +17,7 @@ import java.util.List;
 public final class IfStmt extends Ctrl {
     private Expr cond;
     private Stmt then;
-    private final List<ElseifStmt> elseIfs = new ArrayList<>();
+    private List<ElseifStmt> elseIfs = new ArrayList<>();
     private Stmt _else;
 
     public Expr getCond() {
@@ -41,8 +41,7 @@ public final class IfStmt extends Ctrl {
     }
 
     public void setElseIfs(List<ElseifStmt> elseIfs) {
-        this.elseIfs.clear();
-        this.elseIfs.addAll(elseIfs);
+        this.elseIfs = elseIfs;
     }
 
     public Stmt getElse() {
@@ -51,5 +50,21 @@ public final class IfStmt extends Ctrl {
 
     public void setElse(Stmt _else) {
         this._else = _else;
+    }
+
+    @Override
+    public String toTreeString(int level, String prefix) {
+        StringBuilder sb = new StringBuilder();
+        String t = "\t".repeat(Math.max(0, level - 1));
+        String link = level == 0 ? "" : "|--- ";
+
+        if (level != 0) sb.append("\r\n");
+
+        sb.append(prefix).append(t).append(link).append("If")
+                .append(cond.toTreeString(level + 1, prefix))
+                .append(then == null ? "" : then.toTreeString(level + 1, prefix))
+                .append(_else == null ? "" : _else.toTreeString(level + 1, prefix));
+        elseIfs.forEach(e -> sb.append(e.toTreeString(level + 1, prefix)));
+        return sb.toString();
     }
 }

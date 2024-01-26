@@ -23,4 +23,17 @@ public final class CodeBlock extends Stmt {
         this.stmts.clear();
         this.stmts.addAll(stmts);
     }
+
+    @Override
+    public String toTreeString(int level, String prefix) {
+        StringBuilder sb = new StringBuilder();
+        String t = "\t".repeat(Math.max(0, level - 1));
+        String link = level == 0 ? "" : "|--- ";
+
+        if (level != 0) sb.append("\r\n");
+
+        sb.append(prefix).append(t).append(link).append("CodeBlock");
+        stmts.forEach(s -> sb.append(s.toTreeString(level + 1, prefix)));
+        return sb.toString();
+    }
 }

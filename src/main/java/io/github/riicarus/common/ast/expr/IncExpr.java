@@ -30,4 +30,17 @@ public class IncExpr extends Expr implements SimpleStmt {
     public void setPreOrPost(boolean preOrPost) {
         this.preOrPost = preOrPost;
     }
+
+    @Override
+    public String toTreeString(int level, String prefix) {
+        StringBuilder sb = new StringBuilder();
+        String t = "\t".repeat(Math.max(0, level - 1));
+        String link = level == 0 ? "" : "|--- ";
+
+        if (level != 0) sb.append("\r\n");
+
+        sb.append(prefix).append(t).append(link).append(isPreOrPost() ? "Pre" : "Post").append("Increase")
+                .append(x.toTreeString(level + 1, prefix));
+        return sb.toString();
+    }
 }

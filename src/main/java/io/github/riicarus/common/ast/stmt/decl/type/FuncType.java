@@ -12,7 +12,7 @@ import java.util.List;
  */
 public final class FuncType extends TypeDecl {
     private TypeDecl retType;
-    private final List<TypeDecl> paramTypeDecls = new ArrayList<>();
+    private List<TypeDecl> paramTypeDecls = new ArrayList<>();
 
     public TypeDecl getRetType() {
         return retType;
@@ -27,7 +27,20 @@ public final class FuncType extends TypeDecl {
     }
 
     public void setParamTypeDecls(List<TypeDecl> paramTypeDecls) {
-        this.paramTypeDecls.clear();
-        this.paramTypeDecls.addAll(paramTypeDecls);
+        this.paramTypeDecls = paramTypeDecls;
+    }
+
+    @Override
+    public String toTreeString(int level, String prefix) {
+        StringBuilder sb = new StringBuilder();
+        String t = "\t".repeat(Math.max(0, level - 1));
+        String link = level == 0 ? "" : "|--- ";
+
+        if (level != 0) sb.append("\r\n");
+
+        sb.append(prefix).append(t).append(link).append("FuncType")
+                .append(retType.toTreeString(level + 1, prefix)).append("  (RetType)");
+        paramTypeDecls.forEach(p -> sb.append(p.toTreeString(level + 1, prefix)).append("  (param)"));
+        return sb.toString();
     }
 }

@@ -20,4 +20,10 @@ public abstract class ASTNode {
     public void setPosition(Position position) {
         this.position = position;
     }
+
+    public abstract String toTreeString(int level, String prefix);
+
+    public final String print(String prefix) {
+        return toTreeString(0, prefix);
+    }
 }

@@ -30,4 +30,18 @@ public final class ElseifStmt extends Ctrl {
     public void setThen(Stmt then) {
         this.then = then;
     }
+
+    @Override
+    public String toTreeString(int level, String prefix) {
+        StringBuilder sb = new StringBuilder();
+        String t = "\t".repeat(Math.max(0, level - 1));
+        String link = level == 0 ? "" : "|--- ";
+
+        if (level != 0) sb.append("\r\n");
+
+        sb.append(prefix).append(t).append(link).append("ElseIf")
+                .append(cond.toTreeString(level + 1, prefix))
+                .append(then == null ? "" : then.toTreeString(level + 1, prefix));
+        return sb.toString();
+    }
 }

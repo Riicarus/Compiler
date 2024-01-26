@@ -17,7 +17,7 @@ import java.util.List;
  */
 public final class FuncLit extends Expr {
     private TypeDecl retType;
-    private final List<FieldDecl> paramDecls = new ArrayList<>();
+    private List<FieldDecl> paramDecls = new ArrayList<>();
     private Stmt body;
 
     public TypeDecl getRetType() {
@@ -33,8 +33,7 @@ public final class FuncLit extends Expr {
     }
 
     public void setParamDecls(List<FieldDecl> paramDecls) {
-        this.paramDecls.clear();
-        this.paramDecls.addAll(paramDecls);
+        this.paramDecls = paramDecls;
     }
 
     public Stmt getBody() {
@@ -43,5 +42,21 @@ public final class FuncLit extends Expr {
 
     public void setBody(Stmt body) {
         this.body = body;
+    }
+
+    @Override
+    public String toTreeString(int level, String prefix) {
+        StringBuilder sb = new StringBuilder();
+        String t = "\t".repeat(Math.max(0, level - 1));
+        String link = level == 0 ? "" : "|--- ";
+
+        if (level != 0) sb.append("\r\n");
+
+        sb.append(prefix).append(t).append(link).append("FuncLit  ")
+                .append(retType.toTreeString(level + 1, prefix));
+        paramDecls.forEach(p -> sb.append(p.toTreeString(level + 1, prefix)));
+        sb.append(body == null ? "" : body.toTreeString(level + 1, prefix));
+
+        return sb.toString();
     }
 }

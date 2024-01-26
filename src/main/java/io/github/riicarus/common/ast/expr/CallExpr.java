@@ -14,7 +14,7 @@ import java.util.List;
  */
 public final class CallExpr extends Expr {
     private Expr func;
-    private final List<Expr> params = new ArrayList<>();
+    private List<Expr> params = new ArrayList<>();
 
     public Expr getFunc() {
         return func;
@@ -29,7 +29,21 @@ public final class CallExpr extends Expr {
     }
 
     public void setParams(List<Expr> params) {
-        this.params.clear();
-        this.params.addAll(params);
+        this.params = params;
+    }
+
+    @Override
+    public String toTreeString(int level, String prefix) {
+        StringBuilder sb = new StringBuilder();
+        String t = "\t".repeat(Math.max(0, level - 1));
+        String link = level == 0 ? "" : "|--- ";
+
+        if (level != 0) sb.append("\r\n");
+
+        sb.append(prefix).append(t).append(link).append("Call")
+                .append(func.toTreeString(level + 1, prefix)).append("  (func)");
+        params.forEach(p -> sb.append(p.toTreeString(level + 1, prefix)).append("  (param)"));
+
+        return sb.toString();
     }
 }

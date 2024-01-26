@@ -16,7 +16,7 @@ import java.util.List;
  */
 public final class SwitchStmt extends Ctrl {
     private Expr x;
-    private final List<CaseStmt> cases = new ArrayList<>();
+    private List<CaseStmt> cases = new ArrayList<>();
     private Stmt _default;
 
     public Expr getX() {
@@ -32,8 +32,7 @@ public final class SwitchStmt extends Ctrl {
     }
 
     public void setCases(List<CaseStmt> cases) {
-        this.cases.clear();
-        this.cases.addAll(cases);
+        this.cases = cases;
     }
 
     public Stmt getDefault() {
@@ -42,5 +41,20 @@ public final class SwitchStmt extends Ctrl {
 
     public void setDefault(Stmt _default) {
         this._default = _default;
+    }
+
+    @Override
+    public String toTreeString(int level, String prefix) {
+        StringBuilder sb = new StringBuilder();
+        String t = "\t".repeat(Math.max(0, level - 1));
+        String link = level == 0 ? "" : "|--- ";
+
+        if (level != 0) sb.append("\r\n");
+
+        sb.append(prefix).append(t).append(link).append("Switch")
+                .append(x.toTreeString(level + 1, prefix))
+                .append(_default == null ? "" : _default.toTreeString(level + 1, prefix));
+        cases.forEach(c -> sb.append(c.toTreeString(level + 1, prefix)));
+        return sb.toString();
     }
 }

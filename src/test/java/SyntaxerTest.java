@@ -14,7 +14,7 @@ public class SyntaxerTest {
         Syntaxer syntaxer = new Syntaxer();
         syntaxer.init("D:\\tmp\\compiler\\lex.txt", true);
         final Program program = syntaxer.program();
-        System.out.println(program);
+        System.out.println(program.toTreeString(0, "\t"));
     }
 
 }
