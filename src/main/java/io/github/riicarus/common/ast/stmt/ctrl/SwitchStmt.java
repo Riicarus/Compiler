@@ -4,7 +4,6 @@ import io.github.riicarus.common.ast.Ctrl;
 import io.github.riicarus.common.ast.Expr;
 import io.github.riicarus.common.ast.Stmt;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -16,7 +15,7 @@ import java.util.List;
  */
 public final class SwitchStmt extends Ctrl {
     private Expr x;
-    private List<CaseStmt> cases = new ArrayList<>();
+    private List<CaseStmt> cases;
     private Stmt _default;
 
     public Expr getX() {
@@ -54,7 +53,7 @@ public final class SwitchStmt extends Ctrl {
         sb.append(prefix).append(t).append(link).append("Switch")
                 .append(x.toTreeString(level + 1, prefix))
                 .append(_default == null ? "" : _default.toTreeString(level + 1, prefix));
-        cases.forEach(c -> sb.append(c.toTreeString(level + 1, prefix)));
+        if (cases != null) cases.forEach(c -> sb.append(c.toTreeString(level + 1, prefix)));
         return sb.toString();
     }
 }

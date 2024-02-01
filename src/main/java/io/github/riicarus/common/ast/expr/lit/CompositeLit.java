@@ -2,7 +2,6 @@ package io.github.riicarus.common.ast.expr.lit;
 
 import io.github.riicarus.common.ast.Expr;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -13,7 +12,7 @@ import java.util.List;
  * @since 1.0.0
  */
 public final class CompositeLit extends Expr {
-    private List<Expr> elements = new ArrayList<>();
+    private List<Expr> elements;
 
     public List<Expr> getElements() {
         return elements;
@@ -32,7 +31,7 @@ public final class CompositeLit extends Expr {
         if (level != 0) sb.append("\r\n");
 
         sb.append(prefix).append(t).append(link).append("CompositeLit");
-        elements.forEach(e -> sb.append(e.toTreeString(level + 1, prefix)));
+        if (elements != null) elements.forEach(e -> sb.append(e.toTreeString(level + 1, prefix)));
 
         return sb.toString();
     }

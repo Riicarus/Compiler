@@ -4,7 +4,6 @@ import io.github.riicarus.common.ast.Ctrl;
 import io.github.riicarus.common.ast.Expr;
 import io.github.riicarus.common.ast.Stmt;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -17,7 +16,7 @@ import java.util.List;
 public final class IfStmt extends Ctrl {
     private Expr cond;
     private Stmt then;
-    private List<ElseifStmt> elseIfs = new ArrayList<>();
+    private List<ElseifStmt> elseIfs;
     private Stmt _else;
 
     public Expr getCond() {
@@ -64,7 +63,7 @@ public final class IfStmt extends Ctrl {
                 .append(cond.toTreeString(level + 1, prefix))
                 .append(then == null ? "" : then.toTreeString(level + 1, prefix))
                 .append(_else == null ? "" : _else.toTreeString(level + 1, prefix));
-        elseIfs.forEach(e -> sb.append(e.toTreeString(level + 1, prefix)));
+        if (elseIfs != null) elseIfs.forEach(e -> sb.append(e.toTreeString(level + 1, prefix)));
         return sb.toString();
     }
 }

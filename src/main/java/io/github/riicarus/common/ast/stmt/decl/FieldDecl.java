@@ -2,7 +2,6 @@ package io.github.riicarus.common.ast.stmt.decl;
 
 import io.github.riicarus.common.ast.Decl;
 import io.github.riicarus.common.ast.SimpleStmt;
-import io.github.riicarus.common.ast.stmt.decl.type.TypeDecl;
 import io.github.riicarus.common.ast.expr.AssignExpr;
 import io.github.riicarus.common.ast.expr.NameExpr;
 

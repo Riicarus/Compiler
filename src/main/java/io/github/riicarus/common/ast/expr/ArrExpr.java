@@ -2,7 +2,7 @@ package io.github.riicarus.common.ast.expr;
 
 import io.github.riicarus.common.ast.Expr;
 import io.github.riicarus.common.ast.stmt.decl.type.ArrayType;
-import io.github.riicarus.common.ast.stmt.decl.type.TypeDecl;
+import io.github.riicarus.common.ast.stmt.decl.TypeDecl;
 import io.github.riicarus.common.ast.expr.lit.CompositeLit;
 
 /**

@@ -2,7 +2,6 @@ package io.github.riicarus.common.ast.stmt;
 
 import io.github.riicarus.common.ast.Stmt;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -13,7 +12,7 @@ import java.util.List;
  * @since 1.0.0
  */
 public final class CodeBlock extends Stmt {
-    private List<Stmt> stmts = new ArrayList<>();
+    private List<Stmt> stmts;
 
     public List<Stmt> getStmts() {
         return stmts;
@@ -32,7 +31,7 @@ public final class CodeBlock extends Stmt {
         if (level != 0) sb.append("\r\n");
 
         sb.append(prefix).append(t).append(link).append("CodeBlock");
-        stmts.forEach(s -> sb.append(s.toTreeString(level + 1, prefix)));
+        if (stmts != null) stmts.forEach(s -> sb.append(s.toTreeString(level + 1, prefix)));
         return sb.toString();
     }
 }

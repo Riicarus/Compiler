@@ -1,6 +1,7 @@
 package io.github.riicarus.common.ast.stmt.decl.type;
 
-import java.util.ArrayList;
+import io.github.riicarus.common.ast.stmt.decl.TypeDecl;
+
 import java.util.List;
 
 /**
@@ -12,7 +13,7 @@ import java.util.List;
  */
 public final class FuncType extends TypeDecl {
     private TypeDecl retType;
-    private List<TypeDecl> paramTypeDecls = new ArrayList<>();
+    private List<TypeDecl> paramTypeDecls;
 
     public TypeDecl getRetType() {
         return retType;
@@ -40,7 +41,8 @@ public final class FuncType extends TypeDecl {
 
         sb.append(prefix).append(t).append(link).append("FuncType")
                 .append(retType.toTreeString(level + 1, prefix)).append("  (RetType)");
-        paramTypeDecls.forEach(p -> sb.append(p.toTreeString(level + 1, prefix)).append("  (param)"));
+        if (paramTypeDecls != null)
+            paramTypeDecls.forEach(p -> sb.append(p.toTreeString(level + 1, prefix)).append("  (param)"));
         return sb.toString();
     }
 }

@@ -2,7 +2,6 @@ package io.github.riicarus.common.ast.expr;
 
 import io.github.riicarus.common.ast.Expr;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -14,7 +13,7 @@ import java.util.List;
  */
 public final class CallExpr extends Expr {
     private Expr func;
-    private List<Expr> params = new ArrayList<>();
+    private List<Expr> params;
 
     public Expr getFunc() {
         return func;
@@ -42,7 +41,7 @@ public final class CallExpr extends Expr {
 
         sb.append(prefix).append(t).append(link).append("Call")
                 .append(func.toTreeString(level + 1, prefix)).append("  (func)");
-        params.forEach(p -> sb.append(p.toTreeString(level + 1, prefix)).append("  (param)"));
+        if (params != null) params.forEach(p -> sb.append(p.toTreeString(level + 1, prefix)).append("  (param)"));
 
         return sb.toString();
     }

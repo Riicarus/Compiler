@@ -2,7 +2,6 @@ package io.github.riicarus.common.ast.stmt.ctrl;
 
 import io.github.riicarus.common.ast.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -13,9 +12,9 @@ import java.util.List;
  * @since 1.0.0
  */
 public final class ForStmt extends Ctrl {
-    private List<SimpleStmt> inits = new ArrayList<>();
+    private List<SimpleStmt> inits;
     private Expr cond;
-    private List<SimpleStmt> updates = new ArrayList<>();
+    private List<SimpleStmt> updates;
     private Stmt body;
 
     public List<SimpleStmt> getInits() {
@@ -61,8 +60,8 @@ public final class ForStmt extends Ctrl {
         sb.append(prefix).append(t).append(link).append("For")
                 .append(cond == null ? "" : cond.toTreeString(level + 1, prefix))
                 .append(body == null ? "" : body.toTreeString(level + 1, prefix));
-        inits.forEach(i -> sb.append(((ASTNode) i).toTreeString(level + 1, prefix)));
-        updates.forEach(u -> sb.append(((ASTNode) u).toTreeString(level + 1, prefix)));
+        if (inits != null) inits.forEach(i -> sb.append(((ASTNode) i).toTreeString(level + 1, prefix)));
+        if (updates != null) updates.forEach(u -> sb.append(((ASTNode) u).toTreeString(level + 1, prefix)));
         return sb.toString();
     }
 }

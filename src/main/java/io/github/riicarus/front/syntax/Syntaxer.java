@@ -16,7 +16,7 @@ import io.github.riicarus.common.ast.stmt.decl.FuncDecl;
 import io.github.riicarus.common.ast.stmt.decl.type.ArrayType;
 import io.github.riicarus.common.ast.stmt.decl.type.BasicType;
 import io.github.riicarus.common.ast.stmt.decl.type.FuncType;
-import io.github.riicarus.common.ast.stmt.decl.type.TypeDecl;
+import io.github.riicarus.common.ast.stmt.decl.TypeDecl;
 import io.github.riicarus.front.lex.LexSymbol;
 import io.github.riicarus.front.lex.Lexer;
 import io.github.riicarus.front.lex.LitKind;
@@ -46,10 +46,13 @@ public class Syntaxer {
     private Token token;    // current token
     private Token nt;   // next preview token
 
+    private CodeFile codeFile;  // current code file
+
     public void init(String path, boolean isDebug) {
         this.isDebug = isDebug;
         nt = null;
         token = null;
+        codeFile = null;
         lexer.init(path, this.isDebug);
         next();
     }
@@ -503,12 +506,13 @@ public class Syntaxer {
     /**
      * Program: Stmts
      *
-     * @return Program
+     * @return CodeFile
      */
-    public Program program() {
-        debug("Program");
+    public CodeFile codeFile() {
+        debug("CodeFile");
 
-        final Program x = new Program();
+        final CodeFile x = new CodeFile();
+        codeFile = x;
         x.setPosition(token.getPosition());
         x.setStmts(stmts(true));
 
@@ -804,6 +808,7 @@ public class Syntaxer {
     }
 
     // Decl
+    // Add all declaration info to CodeFile.decls
 
     /**
      * Decl:    [ "const" ] Type Id [ "=" Expr ] ";" <br/>

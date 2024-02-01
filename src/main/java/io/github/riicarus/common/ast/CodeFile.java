@@ -1,25 +1,24 @@
 package io.github.riicarus.common.ast;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Stmt | e
+ * [ Stmt ]
  *
  * @author Riicarus
  * @create 2024-1-16 13:40
  * @since 1.0.0
  */
-public class Program extends ASTNode {
+public class CodeFile extends ASTNode {
 
-    private List<Stmt> stmts = new ArrayList<>();
-
-    public void setStmts(List<Stmt> stmts) {
-        this.stmts = stmts;
-    }
+    private List<Stmt> stmts;
 
     public List<Stmt> getStmts() {
         return stmts;
+    }
+
+    public void setStmts(List<Stmt> stmts) {
+        this.stmts = stmts;
     }
 
     @Override
@@ -31,7 +30,7 @@ public class Program extends ASTNode {
         if (level != 0) sb.append("\r\n");
 
         sb.append(prefix).append(t).append(link).append("Program");
-        stmts.forEach(s -> sb.append(s.toTreeString(level + 1, prefix)));
+        if (stmts != null) stmts.forEach(s -> sb.append(s.toTreeString(level + 1, prefix)));
         return sb.toString();
     }
 }

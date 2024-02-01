@@ -23,7 +23,12 @@ public abstract class ASTNode {
 
     public abstract String toTreeString(int level, String prefix);
 
-    public final String print(String prefix) {
-        return toTreeString(0, prefix);
+    public final void print(String prefix) {
+        System.out.println(toTreeString(0, prefix));
+    }
+
+    @Override
+    public String toString() {
+        return toTreeString(0, "");
     }
 }

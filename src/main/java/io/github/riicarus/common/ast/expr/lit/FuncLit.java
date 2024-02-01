@@ -3,9 +3,8 @@ package io.github.riicarus.common.ast.expr.lit;
 import io.github.riicarus.common.ast.Expr;
 import io.github.riicarus.common.ast.Stmt;
 import io.github.riicarus.common.ast.stmt.decl.FieldDecl;
-import io.github.riicarus.common.ast.stmt.decl.type.TypeDecl;
+import io.github.riicarus.common.ast.stmt.decl.TypeDecl;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -17,7 +16,7 @@ import java.util.List;
  */
 public final class FuncLit extends Expr {
     private TypeDecl retType;
-    private List<FieldDecl> paramDecls = new ArrayList<>();
+    private List<FieldDecl> paramDecls;
     private Stmt body;
 
     public TypeDecl getRetType() {
@@ -54,7 +53,7 @@ public final class FuncLit extends Expr {
 
         sb.append(prefix).append(t).append(link).append("FuncLit  ")
                 .append(retType.toTreeString(level + 1, prefix));
-        paramDecls.forEach(p -> sb.append(p.toTreeString(level + 1, prefix)));
+        if (paramDecls != null) paramDecls.forEach(p -> sb.append(p.toTreeString(level + 1, prefix)));
         sb.append(body == null ? "" : body.toTreeString(level + 1, prefix));
 
         return sb.toString();

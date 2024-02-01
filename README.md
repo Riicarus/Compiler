@@ -69,7 +69,7 @@ package  import  const
 
 #### Literal Words
 
-基础组件定义:
+Basic regex definition:
 
 ```text
 letter  ->  [A-Za-z_]
@@ -111,6 +111,12 @@ Tips:
 
 We use *'"' quoted strings* like `"{"` to represent literal symbols(terminal), and *camel-case words with capital letters* like `Stmt` to represent syntax symbols(nonterminal). Specially, `e` represents to $\epsilon$.
 
+Unquoted assistant symbols:
+
+- `{}`: a group of symbols as an integration
+- `[]`: optional symbols group
+- `|`: choose one from connected symbols
+
 *Statements* always represent executable actions while *Expressions* always represent a value. So *Statements* is of higher level comparing to *Expressions*. But there are some intersections like: `ASSIGN`, `INC`, `DEC`, `FuncCall`, they both can represent an action or a value, we put them in both levels.
 
 #### Program
@@ -138,6 +144,8 @@ SimpleStmt:     FieldDecl
 
 Declare statement contains variable and function declaration, and at the same time the init assignment is also acceptable.
 
+Declarations are either const or normal, while the direct function declaration must be const.
+
 ```text
 Decl:               [ "const" ] Type Id [ "=" Expr ] ";"
                 |   Type "func" Id "(" FieldDecls ")" CodeBlock
@@ -146,7 +154,7 @@ Id:                 identifier
 
 FieldDecls:         [ FieldDecl [ "," FieldDecls ] ]
 
-FieldDecl:          Type Id [ "=" Expr ]
+FieldDecl:          [ "const" ] Type Id [ "=" Expr ]
 
 Type:               BasicType ExtType
 
@@ -164,7 +172,7 @@ ParamTypeDecls:     [ Type [ "," ParamTypeDecls ] ]
 
 #### Expression Statement
 
-Expression statement contains all kinks of statement which can return/construct a value.
+Expression statement contains all kinks of statements which can return/construct a value.
 
 ```text
 Expr:           BinaryExpr
@@ -313,25 +321,26 @@ For the above syntax, we designed AST nodes for it. The AST nodes is divided int
   - `Operation`: Expressions like: `X Op Y`, either `X` or `Y` could be null.
   - `Lit`: Expressions which are directly a value.
     - `BasicLit`: Direct literal value but not identifier.
-    - `FuncLit`: Function's prototype definition, like: `RetType (Params) -> CodeBlock`
+    - `FuncLit`: Function's prototype definition, like: `RetType (Params) -> CodeBlock`.
     - `CompositeLit`: Lits which are compose by elements, like: `Type {Ele[0], Ele[1], ...}`, mainly used in array initializations.
   - `CallExpr`: Function call like: `FuncName(Params[0], Params[1], ...)`.
   - `IndexExpr`: Get element from array by index, like: `X[Index]`.
   - `SliceExpr`: Get elements(slice) from array by from and to index, like: `X[index[0], index[1]]`.
   - `CastExpr`: Cast variable into another type, like: `(Type) X`.
   - `NameExpr`: Identifiers.
-  - `NewArrExpr`: Array created by keyword `new`, like: `new Type[] { Elements }`
-  - `SizeExpr`: Get array size like: `sizeof(X)`
+  - `ArrExpr`: Create array by keyword `new`, like: `new Type[] { Elements }`.
+  - `SizeExpr`: Get array size like: `sizeof(X)`.
+  - `Inc/DecExpr`: Variables pre/post self increase/decrease expression, like: `i++`, `--i`.
 - `Stmt`: Executable actions.
   - `CodeBlock`: Representing a new scope.
   - `SimpleStmt`: Statements which can also provide values.
-    - `Expr`: Expressions like: `X AssignOp Y`, either `X` or `Y` could be null, representing self-assign expressions like: `X++`, `--X`.
-    - `FieldDecl`: Declare *function params*, *variables* with optional initialization value like: `const Type FieldName = X`, if `X` is not null, there would be an `AssignExpr` as a field.
+    - `Expr`
+    - `FieldDecl`: Declare *function params*, *variables* with optional initialization value like: `const Type FieldName = X`. If `X` is not null, there would be an `AssignExpr` as a field.
   - `DeclStmt`: Declarations.
     - `FieldDecl`
     - `FuncDecl`: Declare a function with function name(`NameExpr`) and prototype(`FuncLit`).
     - `TypeDecl`: Declare a type.
-      - `ArrayType`: Declare an array, like: `BasicType []` or `BasicType [Size]`
+      - `ArrayType`: Declare an array, like: `BasicType []` or `BasicType [Size]`.
       - `FuncType`: Declare a function type, like: `RetType func ( ParamTypes )`.
       - `BasicType`: Declare base types, like: `int`, `float`, .etc.
   - `ControlStmt`: Process control actions.
@@ -342,3 +351,4 @@ For the above syntax, we designed AST nodes for it. The AST nodes is divided int
     - `SwitchStmt`
     - `ForStmt`
     - `WhileStmt`
+- `CodeFile`: Code in a single file, contains all AST nodes in the file.

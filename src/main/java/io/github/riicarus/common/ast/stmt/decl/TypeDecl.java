@@ -1,4 +1,4 @@
-package io.github.riicarus.common.ast.stmt.decl.type;
+package io.github.riicarus.common.ast.stmt.decl;
 
 import io.github.riicarus.common.ast.Decl;
 

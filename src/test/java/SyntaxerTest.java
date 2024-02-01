@@ -1,4 +1,4 @@
-import io.github.riicarus.common.ast.Program;
+import io.github.riicarus.common.ast.CodeFile;
 import io.github.riicarus.front.syntax.Syntaxer;
 import org.junit.Test;
 
@@ -13,8 +13,8 @@ public class SyntaxerTest {
     public void testSyntaxer() {
         Syntaxer syntaxer = new Syntaxer();
         syntaxer.init("D:\\tmp\\compiler\\lex.txt", true);
-        final Program program = syntaxer.program();
-        System.out.println(program.toTreeString(0, "\t"));
+        final CodeFile codeFile = syntaxer.codeFile();
+        System.out.println(codeFile.toTreeString(0, "\t"));
     }
 
 }

@@ -1,5 +1,7 @@
 package io.github.riicarus.common.ast.stmt.decl.type;
 
+import io.github.riicarus.common.ast.stmt.decl.TypeDecl;
+
 /**
  * Type "[" "]"
  *
