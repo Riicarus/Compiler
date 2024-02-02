@@ -1,11 +1,7 @@
 package io.github.riicarus.front.semantic;
 
 import io.github.riicarus.common.ast.CodeFile;
-import io.github.riicarus.front.semantic.types.Element;
 import io.github.riicarus.front.semantic.types.Scope;
-
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Semantic analyzer
@@ -32,11 +28,8 @@ public class Checker {
      */
     public void init(CodeFile codeFile, boolean debug) {
         this.codeFile = codeFile;
-        this.rootScope = new Scope();
-        rootScope.setComment("root scope");
+        this.rootScope = codeFile.getScope();
         this.debug = debug;
     }
-
-    private final Set<Element> elements = new HashSet<>();
 
 }

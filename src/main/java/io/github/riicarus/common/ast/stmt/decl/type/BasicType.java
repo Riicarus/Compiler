@@ -1,6 +1,8 @@
 package io.github.riicarus.common.ast.stmt.decl.type;
 
 import io.github.riicarus.common.ast.stmt.decl.TypeDecl;
+import io.github.riicarus.front.semantic.types.Type;
+import io.github.riicarus.front.semantic.types.type.Basic;
 
 /**
  * "int" | "float" | "bool" | "char" | "string" | "void"
@@ -12,33 +14,40 @@ import io.github.riicarus.common.ast.stmt.decl.TypeDecl;
 public final class BasicType extends TypeDecl {
 
     private final String name;
+    private final Basic type;
 
-    public BasicType(String name) {
+    public BasicType(String name, Basic type) {
         this.name = name;
+        this.type = type;
     }
 
     public static BasicType INT() {
-        return new BasicType("int");
+        return new BasicType("int", Basic.INT);
     }
 
     public static BasicType FLOAT() {
-        return new BasicType("float");
+        return new BasicType("float", Basic.FLOAT);
     }
 
     public static BasicType BOOL() {
-        return new BasicType("bool");
+        return new BasicType("bool", Basic.BOOL);
     }
 
     public static BasicType CHAR() {
-        return new BasicType("char");
+        return new BasicType("char", Basic.CHAR);
     }
 
     public static BasicType STRING() {
-        return new BasicType("string");
+        return new BasicType("string", Basic.STRING);
     }
 
     public static BasicType VOID() {
-        return new BasicType("void");
+        return new BasicType("void", Basic.VOID);
+    }
+
+    @Override
+    public Basic type() {
+        return type;
     }
 
     @Override
@@ -51,5 +60,13 @@ public final class BasicType extends TypeDecl {
 
         sb.append(prefix).append(t).append(link).append("BasicType  ").append(name);
         return sb.toString();
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Type getType() {
+        return type;
     }
 }

@@ -1,6 +1,11 @@
 import io.github.riicarus.common.ast.CodeFile;
+import io.github.riicarus.common.ast.Stmt;
+import io.github.riicarus.front.semantic.types.Scope;
 import io.github.riicarus.front.syntax.Syntaxer;
 import org.junit.Test;
+
+import java.util.LinkedList;
+import java.util.Queue;
 
 /**
  * @author Riicarus
@@ -13,8 +18,32 @@ public class SyntaxerTest {
     public void testSyntaxer() {
         Syntaxer syntaxer = new Syntaxer();
         syntaxer.init("D:\\tmp\\compiler\\lex.txt", true);
-        final CodeFile codeFile = syntaxer.codeFile();
+        final CodeFile codeFile = syntaxer.parse();
         System.out.println(codeFile.toTreeString(0, "\t"));
+        Queue<Scope> q = new LinkedList<>();
+        q.add(codeFile.getScope());
+
+        while (!q.isEmpty()) {
+            Scope scope = q.poll();
+            scope.getChildren().forEach(s -> {
+                System.out.println(s);
+                s.getElements().forEach((n, e) -> System.out.println("\t" + e));
+            });
+            q.addAll(scope.getChildren());
+        }
+
+        Scope s = codeFile.getScope();
+        System.out.println();
+        System.out.println(s.enter("Func#main#0"));
+        System.out.println(s.enter("Func#foo#0"));
+
+        System.out.println();
+        for (Stmt stmt : codeFile.getStmts()) {
+            if (stmt.getScope() != null) {
+                System.out.println(s = s.enter(stmt.getScope().getName()));
+                s = s.exit();
+            }
+        }
     }
 
 }

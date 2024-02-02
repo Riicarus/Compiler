@@ -13,10 +13,6 @@ public class Array implements Type {
 
     private Type eleType;
 
-    public Array(Type eleType) {
-        this.eleType = eleType;
-    }
-
     @Override
     public Type underlying() {
         return this;
@@ -25,6 +21,24 @@ public class Array implements Type {
     @Override
     public String naming() {
         return "Array";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Array array)) return false;
+
+        return getEleType() != null ? getEleType().equals(array.getEleType()) : array.getEleType() == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return getEleType() != null ? getEleType().hashCode() : 0;
+    }
+
+    @Override
+    public String toString() {
+        return eleType + "[]";
     }
 
     public Type getEleType() {

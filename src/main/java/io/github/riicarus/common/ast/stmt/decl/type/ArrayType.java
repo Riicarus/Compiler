@@ -1,6 +1,7 @@
 package io.github.riicarus.common.ast.stmt.decl.type;
 
 import io.github.riicarus.common.ast.stmt.decl.TypeDecl;
+import io.github.riicarus.front.semantic.types.type.Array;
 
 /**
  * Type "[" "]"
@@ -12,12 +13,11 @@ import io.github.riicarus.common.ast.stmt.decl.TypeDecl;
 public final class ArrayType extends TypeDecl {
     private TypeDecl eleType;
 
-    public TypeDecl getEleType() {
-        return eleType;
-    }
-
-    public void setEleType(TypeDecl eleType) {
-        this.eleType = eleType;
+    @Override
+    public Array type() {
+        final Array t = new Array();
+        t.setEleType(eleType.type());
+        return t;
     }
 
     @Override
@@ -31,5 +31,13 @@ public final class ArrayType extends TypeDecl {
         sb.append(prefix).append(t).append(link).append("ArrayType")
                 .append(eleType.toTreeString(level + 1, prefix));
         return sb.toString();
+    }
+
+    public TypeDecl getEleType() {
+        return eleType;
+    }
+
+    public void setEleType(TypeDecl eleType) {
+        this.eleType = eleType;
     }
 }

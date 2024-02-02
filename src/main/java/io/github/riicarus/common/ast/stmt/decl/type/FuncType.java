@@ -1,8 +1,10 @@
 package io.github.riicarus.common.ast.stmt.decl.type;
 
 import io.github.riicarus.common.ast.stmt.decl.TypeDecl;
+import io.github.riicarus.front.semantic.types.type.Signature;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * RetType "func" "(" ParamTypeDecls ")"
@@ -15,20 +17,12 @@ public final class FuncType extends TypeDecl {
     private TypeDecl retType;
     private List<TypeDecl> paramTypeDecls;
 
-    public TypeDecl getRetType() {
-        return retType;
-    }
-
-    public void setRetType(TypeDecl retType) {
-        this.retType = retType;
-    }
-
-    public List<TypeDecl> getParamTypeDecls() {
-        return paramTypeDecls;
-    }
-
-    public void setParamTypeDecls(List<TypeDecl> paramTypeDecls) {
-        this.paramTypeDecls = paramTypeDecls;
+    @Override
+    public Signature type() {
+        final Signature s = new Signature();
+        s.setRetType(retType.type());
+        s.setParamType(paramTypeDecls.stream().map(TypeDecl::type).collect(Collectors.toList()));
+        return s;
     }
 
     @Override
@@ -44,5 +38,21 @@ public final class FuncType extends TypeDecl {
         if (paramTypeDecls != null)
             paramTypeDecls.forEach(p -> sb.append(p.toTreeString(level + 1, prefix)).append("  (param)"));
         return sb.toString();
+    }
+
+    public TypeDecl getRetType() {
+        return retType;
+    }
+
+    public void setRetType(TypeDecl retType) {
+        this.retType = retType;
+    }
+
+    public List<TypeDecl> getParamTypeDecls() {
+        return paramTypeDecls;
+    }
+
+    public void setParamTypeDecls(List<TypeDecl> paramTypeDecls) {
+        this.paramTypeDecls = paramTypeDecls;
     }
 }

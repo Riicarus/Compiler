@@ -1,6 +1,7 @@
 package io.github.riicarus.common.ast.stmt.decl;
 
 import io.github.riicarus.common.ast.Decl;
+import io.github.riicarus.front.semantic.types.Type;
 
 /**
  * Type
@@ -10,4 +11,12 @@ import io.github.riicarus.common.ast.Decl;
  * @since 1.0.0
  */
 public abstract class TypeDecl extends Decl {
+
+    /**
+     * Get type info from decl.
+     *
+     * @return Type
+     */
+    public abstract Type type();
+
 }

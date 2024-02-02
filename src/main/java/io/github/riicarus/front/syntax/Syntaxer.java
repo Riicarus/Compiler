@@ -13,18 +13,22 @@ import io.github.riicarus.common.ast.stmt.CodeBlock;
 import io.github.riicarus.common.ast.stmt.ctrl.*;
 import io.github.riicarus.common.ast.stmt.decl.FieldDecl;
 import io.github.riicarus.common.ast.stmt.decl.FuncDecl;
+import io.github.riicarus.common.ast.stmt.decl.TypeDecl;
 import io.github.riicarus.common.ast.stmt.decl.type.ArrayType;
 import io.github.riicarus.common.ast.stmt.decl.type.BasicType;
 import io.github.riicarus.common.ast.stmt.decl.type.FuncType;
-import io.github.riicarus.common.ast.stmt.decl.TypeDecl;
 import io.github.riicarus.front.lex.LexSymbol;
 import io.github.riicarus.front.lex.Lexer;
 import io.github.riicarus.front.lex.LitKind;
 import io.github.riicarus.front.lex.Token;
+import io.github.riicarus.front.semantic.types.Element;
+import io.github.riicarus.front.semantic.types.Scope;
+import io.github.riicarus.front.semantic.types.type.Signature;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Syntax analyzer.
@@ -46,12 +50,14 @@ public class Syntaxer {
     private Token token;    // current token
     private Token nt;   // next preview token
 
-    private CodeFile codeFile;  // current code file
+    private Scope s;  // current scope
+    private CodeFile codeFile;
 
     public void init(String path, boolean isDebug) {
         this.isDebug = isDebug;
         nt = null;
         token = null;
+        s = null;
         codeFile = null;
         lexer.init(path, this.isDebug);
         next();
@@ -133,12 +139,16 @@ public class Syntaxer {
         return nt;
     }
 
-    private void error(String s) throws IllegalStateException {
-        throw new IllegalStateException("Syntax error: at " + token.getPosition() + ": " + s);
+    public CodeFile parse() {
+        try {
+            return codeFile();
+        } catch (IllegalStateException e) {
+            throw new IllegalStateException("Syntax error: at " + token.getPosition() + ": " + e.getMessage(), e);
+        }
     }
 
     private void debug(String s) {
-        if (isDebug) System.out.printf("%-20s%s%n", s, token);
+        if (isDebug) System.out.printf("%-20s  %s\n", s, token);
     }
 
     // Stmt
@@ -486,7 +496,10 @@ public class Syntaxer {
     private FuncLit funcLit() {
         debug("FuncLit");
 
+        s = s.enter("Func#Anonymous");
+        s.setFunc(true);
         final FuncLit x = new FuncLit();
+        x.setScope(s);
         x.setRetType(typeDecl());
         want(LexSymbol.LPAREN);
         final List<FieldDecl> params = new ArrayList<>();
@@ -498,7 +511,8 @@ public class Syntaxer {
             return false;
         });
         want(LexSymbol.RARROW);
-        x.setBody(stmt());
+        x.setBody(stmt(false));
+        s = s.exit();
 
         return x;
     }
@@ -508,13 +522,15 @@ public class Syntaxer {
      *
      * @return CodeFile
      */
-    public CodeFile codeFile() {
+    private CodeFile codeFile() {
         debug("CodeFile");
 
         final CodeFile x = new CodeFile();
         codeFile = x;
+        s = x.getScope();
         x.setPosition(token.getPosition());
-        x.setStmts(stmts(true));
+        x.setStmts(stmts(true, false));
+        s = s.exit();
 
         return x;
     }
@@ -530,7 +546,9 @@ public class Syntaxer {
         want(LexSymbol.LBRACE);
         final CodeBlock x = new CodeBlock();
         x.setPosition(token.getPosition());
-        x.setStmts(stmts(true));
+
+        // Current scope already has name "Anonymous#Id"
+        x.setStmts(stmts(true, false));
         want(LexSymbol.RBRACE);
 
         return x;
@@ -539,16 +557,18 @@ public class Syntaxer {
     /**
      * Stmts:   [ Stmt Stmts ]
      *
+     * @param report    boolean, report exception
+     * @param anonymous boolean, is scope anonymous
      * @return List&lt;Stmt&gt;
      */
     @SuppressWarnings("SameParameterValue")
-    private List<Stmt> stmts(boolean report) {
+    private List<Stmt> stmts(boolean report, boolean anonymous) {
         debug("Stmts");
 
         final List<Stmt> stmts = new ArrayList<>();
         Stmt stmt;
         try {
-            while ((stmt = stmt()) != null) stmts.add(stmt);
+            while ((stmt = stmt(anonymous)) != null) stmts.add(stmt);
         } catch (IllegalStateException e) {
             if (report) throw e;
         }
@@ -563,12 +583,14 @@ public class Syntaxer {
      * |    CodeBlock
      * |    ";"
      *
+     * @param anonymous boolean, is scope anonymous
      * @return Stmt
      */
-    private Stmt stmt() {
+    private Stmt stmt(boolean anonymous) {
         debug("Stmt");
 
-        return switch (token.getSymbol()) {
+        if (anonymous) s = s.enter("Anonymous");
+        Stmt x = switch (token.getSymbol()) {
             case CONST, INT, FLOAT, BOOL, CHAR, STRING, VOID -> decl();
             case IDENT, LPAREN, INC, DEC, NOT, LNOT, NEW -> {
                 final Expr expr = expr();
@@ -581,6 +603,12 @@ public class Syntaxer {
             case EOF, RBRACE -> null;
             default -> throw new IllegalStateException("Illegal statement");
         };
+        if (anonymous) {
+            if (x != null) x.setScope(s);
+            s = s.exit();
+        }
+
+        return x;
     }
 
     // control
@@ -677,7 +705,13 @@ public class Syntaxer {
         x.setCond(expr());
         want(LexSymbol.RPAREN);
 
-        if (!got(LexSymbol.SEMICOLON)) x.setThen(stmt());
+        if (!got(LexSymbol.SEMICOLON)) {
+            s = s.enter("If");
+            final Stmt stmt = stmt(false);
+            stmt.setScope(s);
+            x.setThen(stmt);
+            s = s.exit();
+        }
 
         final List<ElseifStmt> elseifStmts = new ArrayList<>();
         x.setElseIfs(elseifStmts);
@@ -687,12 +721,26 @@ public class Syntaxer {
             want(LexSymbol.LPAREN);
             elseifStmt.setCond(expr());
             want(LexSymbol.RPAREN);
-            if (!got(LexSymbol.SEMICOLON)) elseifStmt.setThen(stmt());
+
+            if (!got(LexSymbol.SEMICOLON)) {
+                s = s.enter("Elseif");
+                final Stmt stmt = stmt(false);
+                stmt.setScope(s);
+                elseifStmt.setThen(stmt);
+                s = s.exit();
+            }
+
             elseifStmts.add(elseifStmt);
         }
 
         if (got(LexSymbol.ELSE)) {
-            if (!got(LexSymbol.SEMICOLON)) x.setElse(stmt());
+            if (!got(LexSymbol.SEMICOLON)) {
+                s = s.enter("Else");
+                final Stmt stmt = stmt(false);
+                stmt.setScope(s);
+                x.setElse(stmt);
+                s = s.exit();
+            }
         }
 
         return x;
@@ -714,18 +762,27 @@ public class Syntaxer {
 
         final List<CaseStmt> caseStmts = new ArrayList<>();
         x.setCases(caseStmts);
+        Scope scope;
         while (got(LexSymbol.CASE)) {
             final CaseStmt caseStmt = new CaseStmt();
             caseStmt.setPosition(token.getPosition());
             caseStmt.setCond(expr());
             want(LexSymbol.COLON);
-            caseStmt.setBody(stmt());
+            s = s.enter("Case");
+            final Stmt stmt = stmt(false);
+            stmt.setScope(s);
+            caseStmt.setBody(stmt);
+            s = s.exit();
             caseStmts.add(caseStmt);
         }
 
         if (got(LexSymbol.DEFAULT)) {
             want(LexSymbol.COLON);
-            x.setDefault(stmt());
+            s = s.enter("Default");
+            final Stmt stmt = stmt(false);
+            stmt.setScope(s);
+            x.setDefault(stmt);
+            s = s.exit();
         }
 
         want(LexSymbol.RBRACE);
@@ -741,7 +798,9 @@ public class Syntaxer {
     private ForStmt forStmt() {
         debug("ForStmt");
 
+        s = s.enter("For");
         final ForStmt x = new ForStmt();
+        x.setScope(s);
         x.setPosition(token.getPosition());
         want(LexSymbol.FOR);
         want(LexSymbol.LPAREN);
@@ -768,7 +827,8 @@ public class Syntaxer {
             });
         }
 
-        if (!got(LexSymbol.SEMICOLON)) x.setBody(stmt());
+        if (!got(LexSymbol.SEMICOLON)) x.setBody(stmt(false));
+        s = s.exit();
 
         return x;
     }
@@ -787,7 +847,11 @@ public class Syntaxer {
         want(LexSymbol.LPAREN);
         x.setCond(expr());
         want(LexSymbol.RPAREN);
-        if (!got(LexSymbol.SEMICOLON)) x.setBody(stmt());
+
+        s = s.enter("While");
+        x.setScope(s);
+        if (!got(LexSymbol.SEMICOLON)) x.setBody(stmt(false));
+        s = s.exit();
 
         return x;
     }
@@ -831,6 +895,20 @@ public class Syntaxer {
         x.setPosition(token.getPosition());
         x.setName(nameExpr());
 
+        final String name = x.getName().getValue();
+        if (s.lookup(name) != null)
+            throw new IllegalStateException("Variable " + name + " has already declared");
+
+        final Element e = new Element();
+        e.setScope(s)
+                .setRootScope(codeFile.getScope())
+                .setPos(x.getPosition()).setName(name)
+                .setType(x.getType().type()).setTypeDecl(x)
+                .setConst(x.isConst()).setOrder(s.getElements().size());
+        s.addEle(name, e);
+        if (e.getType() instanceof Signature signature)
+            signature.setName(x.getName().getValue());
+
         if (got(LexSymbol.ASSIGN)) {
             final AssignExpr assign = new AssignExpr();
             assign.setPosition(token.getPosition());
@@ -838,6 +916,18 @@ public class Syntaxer {
             assign.setOp(BinaryOp.ASSIGN);
             assign.setY(expr());
             x.setAssign(assign);
+
+            // if is func variable decl, update scope name of func lit
+            if (x.getType() instanceof FuncType) {
+                if (assign.getY() instanceof FuncLit lit) {
+                    String oldName = lit.getScope().getName();
+                    String newName = String.format("%s#%s#%s",
+                            oldName.substring(0, oldName.indexOf("#")),
+                            name,
+                            oldName.substring(oldName.lastIndexOf("#") + 1));
+                    lit.getScope().setName(newName);
+                }
+            }
         }
 
         want(LexSymbol.SEMICOLON);
@@ -857,6 +947,10 @@ public class Syntaxer {
         x.setPosition(token.getPosition());
         x.setFuncName(nameExpr());
         want(LexSymbol.LPAREN);
+
+        s = s.enter("Func#" + x.getFuncName().getValue());
+        s.setFunc(true);
+        x.setScope(s);
         final List<FieldDecl> params = new ArrayList<>();
         list("func param decl", LexSymbol.COMMA, LexSymbol.RPAREN, token -> {
             if (got(LexSymbol.CONST))
@@ -870,6 +964,23 @@ public class Syntaxer {
         lit.setParamDecls(params);
         lit.setPosition(retType.getPosition());
         lit.setBody(codeBlock());
+        s.exit();
+
+        final String name = x.getFuncName().getValue();
+        if (s.lookup(name) != null)
+            throw new IllegalStateException("Function " + name + " has already declared");
+
+        final Signature signature = new Signature();
+        signature.setParamType(lit.getParamDecls().stream().map(p -> p.getType().type()).collect(Collectors.toList()));
+        signature.setName(name);
+        signature.setRetType(retType.type());
+        final Element e = new Element();
+        e.setScope(s)
+                .setRootScope(codeFile.getScope())
+                .setPos(x.getPosition()).setName(name)
+                .setType(signature).setTypeDecl(x)
+                .setConst(true).setOrder(s.getElements().size());
+        s = s.exit();
 
         return x;
     }
@@ -887,6 +998,18 @@ public class Syntaxer {
         x.setType(typeDecl());
         x.setPosition(token.getPosition());
         x.setName(nameExpr());
+
+        final String name = x.getName().getValue();
+        if (s.lookup(name) != null)
+            throw new IllegalStateException("Variable " + name + " has already declared");
+
+        final Element e = new Element();
+        e.setScope(s)
+                .setRootScope(codeFile.getScope())
+                .setPos(x.getPosition()).setName(name)
+                .setType(x.getType().type()).setTypeDecl(x)
+                .setConst(x.isConst()).setOrder(s.getElements().size());
+        s.addEle(name, e);
 
         if (got(LexSymbol.ASSIGN)) {
             final AssignExpr assign = new AssignExpr();
@@ -910,7 +1033,7 @@ public class Syntaxer {
         debug("TypeDecl");
 
         TypeDecl x = basicType();
-        for (;;) {
+        for (; ; ) {
             if (is(LexSymbol.FUNC) && LexSymbol.LPAREN.equals(preview().getSymbol())) x = funcType(x);
             else if (is(LexSymbol.LBRACK) && LexSymbol.RBRACK.equals(preview().getSymbol())) x = arrayType(x);
             else break;

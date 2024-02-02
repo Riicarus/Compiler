@@ -1,5 +1,7 @@
 package io.github.riicarus.common.ast;
 
+import io.github.riicarus.front.semantic.types.Scope;
+
 import java.util.List;
 
 /**
@@ -12,13 +14,10 @@ import java.util.List;
 public class CodeFile extends ASTNode {
 
     private List<Stmt> stmts;
+    private final Scope scope = new Scope();
 
-    public List<Stmt> getStmts() {
-        return stmts;
-    }
-
-    public void setStmts(List<Stmt> stmts) {
-        this.stmts = stmts;
+    public CodeFile() {
+        scope.setName("CodeFile");
     }
 
     @Override
@@ -32,5 +31,17 @@ public class CodeFile extends ASTNode {
         sb.append(prefix).append(t).append(link).append("Program");
         if (stmts != null) stmts.forEach(s -> sb.append(s.toTreeString(level + 1, prefix)));
         return sb.toString();
+    }
+
+    public List<Stmt> getStmts() {
+        return stmts;
+    }
+
+    public void setStmts(List<Stmt> stmts) {
+        this.stmts = stmts;
+    }
+
+    public Scope getScope() {
+        return scope;
     }
 }
