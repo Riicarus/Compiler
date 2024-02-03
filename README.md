@@ -364,3 +364,17 @@ Semantic checker will do jobs bellow:
 - Static computation optimization
 - Closure scope increment
 - Clean unnecessary code
+
+### Scope and element manage
+
+We create scopes and collect elements during *recursive descent analyze* process, and eventually the root scope in `CodeFile` contains all scopes and elements in one code file.
+
+The scope is distinguished by name and parent scope's name, but statements like `If`, `For` do not have distinguishable names, so we add a suffix to the name, formatted as: `Name#${Id}`, `${Id}` is the size of current scope's element set.
+
+We use `Scope#enter(String name)` to enter or create(only in elements collecting phase), but we can not remember the id of scope's name, so we simply bind each scope to the leading statement which leads to the new scope, thus we use `Stmt#getScope()` to get the binding scope and enter with its name with `Scope#getName()`. Scope's full name is `(parent == null ? "" : parent.getFullName() + ".") + name`.
+
+If we bind a function lit to a variable, the `FuncLit` will be firstly created as an anonymous function and its scope is also anonymous, in `decl()` we update its name to the bound variable's name.
+
+Some complex statements have a code block like body with only one statement, but not quoted by `{}`, we bind the scope to the statement. Otherwise, the scope will bind to code block, or the outer size of statements like `ForStmt`.
+
+> Note that the scope will set its `collecting` field to `false` immediately after the first invocation of `Scope#exit()` method.

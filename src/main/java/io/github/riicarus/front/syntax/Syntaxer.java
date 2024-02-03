@@ -897,7 +897,7 @@ public class Syntaxer {
 
         final String name = x.getName().getValue();
         if (s.lookup(name) != null)
-            throw new IllegalStateException("Variable " + name + " has already declared");
+            throw new IllegalStateException("Variable " + name + " has already been declared");
 
         final Element e = new Element();
         e.setScope(s)
@@ -968,7 +968,7 @@ public class Syntaxer {
 
         final String name = x.getFuncName().getValue();
         if (s.lookup(name) != null)
-            throw new IllegalStateException("Function " + name + " has already declared");
+            throw new IllegalStateException("Function " + name + " has already been declared");
 
         final Signature signature = new Signature();
         signature.setParamType(lit.getParamDecls().stream().map(p -> p.getType().type()).collect(Collectors.toList()));
@@ -1001,7 +1001,7 @@ public class Syntaxer {
 
         final String name = x.getName().getValue();
         if (s.lookup(name) != null)
-            throw new IllegalStateException("Variable " + name + " has already declared");
+            throw new IllegalStateException("Variable " + name + " has already been declared");
 
         final Element e = new Element();
         e.setScope(s)
