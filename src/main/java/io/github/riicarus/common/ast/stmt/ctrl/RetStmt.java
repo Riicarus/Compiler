@@ -2,6 +2,9 @@ package io.github.riicarus.common.ast.stmt.ctrl;
 
 import io.github.riicarus.common.ast.Ctrl;
 import io.github.riicarus.common.ast.Expr;
+import io.github.riicarus.front.semantic.Checker;
+import io.github.riicarus.front.semantic.types.Type;
+import io.github.riicarus.front.semantic.types.type.Basic;
 
 /**
  * return Expr;
@@ -13,12 +16,9 @@ import io.github.riicarus.common.ast.Expr;
 public final class RetStmt extends Ctrl {
     private Expr retVal;
 
-    public Expr getRetVal() {
-        return retVal;
-    }
-
-    public void setRetVal(Expr retVal) {
-        this.retVal = retVal;
+    @Override
+    public Type doCheckType(Checker checker, Type outerType) {
+        return retVal == null ? Basic.VOID : retVal.checkType(checker, null);
     }
 
     @Override
@@ -32,5 +32,17 @@ public final class RetStmt extends Ctrl {
         sb.append(prefix).append(t).append(link).append("Return")
                 .append(retVal == null ? "" : retVal.toTreeString(level + 1, prefix));
         return sb.toString();
+    }
+
+    /* **************************************************************
+     * Getters and Setters
+     *************************************************************** */
+
+    public Expr getRetVal() {
+        return retVal;
+    }
+
+    public void setRetVal(Expr retVal) {
+        this.retVal = retVal;
     }
 }

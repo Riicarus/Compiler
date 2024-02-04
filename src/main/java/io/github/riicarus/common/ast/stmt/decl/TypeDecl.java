@@ -1,6 +1,7 @@
 package io.github.riicarus.common.ast.stmt.decl;
 
 import io.github.riicarus.common.ast.Decl;
+import io.github.riicarus.front.semantic.Checker;
 import io.github.riicarus.front.semantic.types.Type;
 
 /**
@@ -19,4 +20,8 @@ public abstract class TypeDecl extends Decl {
      */
     public abstract Type type();
 
+    @Override
+    public Type doCheckType(Checker checker, Type outerType) {
+        return type();
+    }
 }

@@ -21,7 +21,7 @@ public final class FuncType extends TypeDecl {
     public Signature type() {
         final Signature s = new Signature();
         s.setRetType(retType.type());
-        s.setParamType(paramTypeDecls.stream().map(TypeDecl::type).collect(Collectors.toList()));
+        s.setParamTypes(paramTypeDecls.stream().map(TypeDecl::type).collect(Collectors.toList()));
         return s;
     }
 
@@ -39,6 +39,10 @@ public final class FuncType extends TypeDecl {
             paramTypeDecls.forEach(p -> sb.append(p.toTreeString(level + 1, prefix)).append("  (param)"));
         return sb.toString();
     }
+
+    /* **************************************************************
+     * Getters and Setters
+     *************************************************************** */
 
     public TypeDecl getRetType() {
         return retType;

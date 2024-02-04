@@ -1,6 +1,9 @@
 package io.github.riicarus.common.ast;
 
+import io.github.riicarus.front.semantic.Checker;
 import io.github.riicarus.front.semantic.types.Scope;
+import io.github.riicarus.front.semantic.types.Type;
+import io.github.riicarus.front.semantic.types.type.Basic;
 
 import java.util.List;
 
@@ -18,6 +21,12 @@ public class CodeFile extends ASTNode {
 
     public CodeFile() {
         scope.setName("CodeFile");
+    }
+
+    @Override
+    public Type doCheckType(Checker checker, Type outerCheck) {
+        stmts.forEach(s -> s.checkType(checker, outerCheck));
+        return Basic.VOID;
     }
 
     @Override

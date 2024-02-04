@@ -1,8 +1,13 @@
 package io.github.riicarus.common.ast.expr;
 
 import io.github.riicarus.common.ast.Expr;
+import io.github.riicarus.front.semantic.Checker;
+import io.github.riicarus.front.semantic.types.Type;
+import io.github.riicarus.front.semantic.types.type.Signature;
 
 import java.util.List;
+
+import static java.util.stream.Collectors.joining;
 
 /**
  * FuncName "(" Params ")"
@@ -15,20 +20,28 @@ public final class CallExpr extends Expr {
     private Expr func;
     private List<Expr> params;
 
-    public Expr getFunc() {
-        return func;
-    }
+    @Override
+    public Type doCheckType(Checker checker, Type outerType) {
+        Type ft = func.checkType(checker, null);
 
-    public void setFunc(Expr func) {
-        this.func = func;
-    }
+        if (ft instanceof Signature s) {
+            if (params != null)
+                if (params.size() != s.getParamTypes().size())
+                    throw new IllegalStateException(String.format("Type error: function params error: need (%s), but get (%s)",
+                            s.getParamTypes().stream().map(Type::naming).collect(joining(", ")),
+                            params.stream().map(p -> p.checkType(checker, null).naming()).collect(joining(", "))));
 
-    public List<Expr> getParams() {
-        return params;
-    }
 
-    public void setParams(List<Expr> params) {
-        this.params = params;
+            for (int i = 0; i < s.getParamTypes().size(); i++)
+                if (!s.getParamTypes().get(i).equals(params.get(i).checkType(checker, null)))
+                    throw new IllegalStateException(String.format("Type error: function params error: need (%s), but get (%s)",
+                            s.getParamTypes().stream().map(Type::naming).collect(joining(", ")),
+                            params.stream().map(p -> p.checkType(checker, null).naming()).collect(joining(", "))));
+
+            return s.getRetType();
+        }
+
+        throw new IllegalStateException("Type error: not a function type");
     }
 
     @Override
@@ -44,5 +57,25 @@ public final class CallExpr extends Expr {
         if (params != null) params.forEach(p -> sb.append(p.toTreeString(level + 1, prefix)).append("  (param)"));
 
         return sb.toString();
+    }
+
+    /* **************************************************************
+     * Getters and Setters
+     *************************************************************** */
+
+    public Expr getFunc() {
+        return func;
+    }
+
+    public void setFunc(Expr func) {
+        this.func = func;
+    }
+
+    public List<Expr> getParams() {
+        return params;
+    }
+
+    public void setParams(List<Expr> params) {
+        this.params = params;
     }
 }

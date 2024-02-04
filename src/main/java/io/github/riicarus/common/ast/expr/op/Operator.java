@@ -1,5 +1,9 @@
 package io.github.riicarus.common.ast.expr.op;
 
+import io.github.riicarus.common.ast.Expr;
+import io.github.riicarus.front.semantic.Checker;
+import io.github.riicarus.front.semantic.types.Type;
+
 /**
  * Operator
  *
@@ -13,4 +17,5 @@ public interface Operator {
 
     int getPriority();
 
+    Type checkType(Checker checker, Expr x, Expr y);
 }

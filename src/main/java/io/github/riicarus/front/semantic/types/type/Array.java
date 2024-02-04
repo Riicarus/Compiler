@@ -15,7 +15,7 @@ public class Array implements Type {
 
     @Override
     public Type underlying() {
-        return this;
+        return eleType;
     }
 
     @Override

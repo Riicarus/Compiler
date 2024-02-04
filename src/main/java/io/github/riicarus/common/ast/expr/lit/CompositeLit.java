@@ -1,6 +1,9 @@
 package io.github.riicarus.common.ast.expr.lit;
 
 import io.github.riicarus.common.ast.Expr;
+import io.github.riicarus.front.semantic.Checker;
+import io.github.riicarus.front.semantic.types.Type;
+import io.github.riicarus.front.semantic.types.type.Basic;
 
 import java.util.List;
 
@@ -20,6 +23,25 @@ public final class CompositeLit extends Expr {
 
     public void setElements(List<Expr> elements) {
         this.elements = elements;
+    }
+
+    @Override
+    public Type doCheckType(Checker checker, Type outerType) {
+        if (outerType == null)
+            throw new IllegalStateException("Type error: composite lit type check need outer type");
+
+        for (Expr e : elements) {
+            if (e instanceof CompositeLit) {
+                e.checkType(checker, outerType.underlying());
+                continue;
+            }
+
+            Type inner = e.checkType(checker, outerType.underlying());
+            if (!outerType.underlying().equals(inner))
+                throw new IllegalStateException(String.format("Type error: need %s, but get %s", outerType.underlying(), inner));
+        }
+
+        return Basic.VOID;
     }
 
     @Override

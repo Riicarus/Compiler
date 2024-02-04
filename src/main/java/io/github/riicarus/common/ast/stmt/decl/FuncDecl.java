@@ -3,6 +3,8 @@ package io.github.riicarus.common.ast.stmt.decl;
 import io.github.riicarus.common.ast.Decl;
 import io.github.riicarus.common.ast.expr.NameExpr;
 import io.github.riicarus.common.ast.expr.lit.FuncLit;
+import io.github.riicarus.front.semantic.Checker;
+import io.github.riicarus.front.semantic.types.Type;
 
 /**
  * RetType "func" FuncName "(" ParamDecls ")" CodeBlock <br/>
@@ -14,6 +16,29 @@ import io.github.riicarus.common.ast.expr.lit.FuncLit;
 public final class FuncDecl extends Decl {
     private NameExpr funcName;
     private FuncLit funcLit;
+
+    @Override
+    public Type doCheckType(Checker checker, Type outer) {
+        return funcLit.checkType(checker, null);
+    }
+
+    @Override
+    public String toTreeString(int level, String prefix) {
+        StringBuilder sb = new StringBuilder();
+        String t = "\t".repeat(Math.max(0, level - 1));
+        String link = level == 0 ? "" : "|--- ";
+
+        if (level != 0) sb.append("\r\n");
+
+        sb.append(prefix).append(t).append(link).append("FuncDecl")
+                .append(funcName.toTreeString(level + 1, prefix))
+                .append(funcLit.toTreeString(level + 1, prefix));
+        return sb.toString();
+    }
+
+    /* **************************************************************
+     * Getters and Setters
+     *************************************************************** */
 
     public NameExpr getFuncName() {
         return funcName;
@@ -29,19 +54,5 @@ public final class FuncDecl extends Decl {
 
     public void setFuncLit(FuncLit funcLit) {
         this.funcLit = funcLit;
-    }
-
-    @Override
-    public String toTreeString(int level, String prefix) {
-        StringBuilder sb = new StringBuilder();
-        String t = "\t".repeat(Math.max(0, level - 1));
-        String link = level == 0 ? "" : "|--- ";
-
-        if (level != 0) sb.append("\r\n");
-
-        sb.append(prefix).append(t).append(link).append("FuncDecl")
-                .append(funcName.toTreeString(level + 1, prefix))
-                .append(funcLit.toTreeString(level + 1, prefix));
-        return sb.toString();
     }
 }

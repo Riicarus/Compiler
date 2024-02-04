@@ -1,6 +1,10 @@
 package io.github.riicarus.common.ast.expr.op;
 
+import io.github.riicarus.common.ast.Expr;
 import io.github.riicarus.front.lex.LexSymbol;
+import io.github.riicarus.front.semantic.Checker;
+import io.github.riicarus.front.semantic.types.Type;
+import io.github.riicarus.front.semantic.types.type.Basic;
 
 import java.util.Map;
 
@@ -24,6 +28,7 @@ public enum UnaryOp implements Operator {
         this.priority = priority;
     }
 
+
     @Override
     public String getOp() {
         return op;
@@ -32,6 +37,16 @@ public enum UnaryOp implements Operator {
     @Override
     public int getPriority() {
         return priority;
+    }
+
+    @Override
+    public Type checkType(Checker checker, Expr x, Expr y) {
+        Type xt = x.checkType(checker, null);
+
+        if (!xt.equals(Basic.BOOL))
+            throw new IllegalStateException(String.format("Type error: illegal type for operation: %s %s", op, xt));
+
+        return Basic.BOOL;
     }
 
     public static final Map<LexSymbol, UnaryOp> OP_MAP = Map.of(

@@ -1,5 +1,6 @@
 import io.github.riicarus.common.ast.CodeFile;
 import io.github.riicarus.common.ast.Stmt;
+import io.github.riicarus.front.semantic.Checker;
 import io.github.riicarus.front.semantic.types.Scope;
 import io.github.riicarus.front.syntax.Syntaxer;
 import org.junit.Test;
@@ -43,6 +44,14 @@ public class SyntaxerTest {
                 System.out.println(s = s.enter(stmt.getScope().getName()));
                 s = s.exit();
             }
+        }
+
+        Checker checker = new Checker();
+        checker.init(codeFile, true);
+        try {
+            codeFile.checkType(checker, null);
+        } catch (IllegalStateException e) {
+            throw new IllegalStateException(String.format("Semantic error: %s", e.getMessage()), e);
         }
     }
 

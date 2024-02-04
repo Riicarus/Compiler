@@ -20,6 +20,7 @@ public class Checker {
      * Root scope
      */
     private Scope rootScope;
+    private Scope curScope;
     private boolean debug;
 
     /**
@@ -29,7 +30,51 @@ public class Checker {
     public void init(CodeFile codeFile, boolean debug) {
         this.codeFile = codeFile;
         this.rootScope = codeFile.getScope();
+        this.curScope = this.rootScope;
         this.debug = debug;
     }
 
+    public void enter(String name) {
+        curScope = curScope.enter(name);
+    }
+
+    public void exit() {
+        curScope = curScope.exit();
+    }
+
+    /* **************************************************************
+     * Getters and Setters
+     *************************************************************** */
+
+    public CodeFile getCodeFile() {
+        return codeFile;
+    }
+
+    public void setCodeFile(CodeFile codeFile) {
+        this.codeFile = codeFile;
+    }
+
+    public Scope getRootScope() {
+        return rootScope;
+    }
+
+    public void setRootScope(Scope rootScope) {
+        this.rootScope = rootScope;
+    }
+
+    public Scope getCurScope() {
+        return curScope;
+    }
+
+    public void setCurScope(Scope curScope) {
+        this.curScope = curScope;
+    }
+
+    public boolean isDebug() {
+        return debug;
+    }
+
+    public void setDebug(boolean debug) {
+        this.debug = debug;
+    }
 }

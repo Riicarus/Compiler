@@ -52,4 +52,10 @@ public enum Basic implements Type {
 
         return false;
     }
+
+
+    @Override
+    public String toString() {
+        return naming();
+    }
 }

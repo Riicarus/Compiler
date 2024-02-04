@@ -35,6 +35,7 @@ public enum LitKind {
             LexSymbol.CHAR_LIT, CHAR,
             LexSymbol.STRING_LIT, STRING,
             LexSymbol.TRUE, TRUE,
-            LexSymbol.FALSE, FALSE
+            LexSymbol.FALSE, FALSE,
+            LexSymbol.NULL, NULL
     );
 }

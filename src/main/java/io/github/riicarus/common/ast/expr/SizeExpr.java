@@ -1,6 +1,10 @@
 package io.github.riicarus.common.ast.expr;
 
 import io.github.riicarus.common.ast.Expr;
+import io.github.riicarus.front.semantic.Checker;
+import io.github.riicarus.front.semantic.types.Type;
+import io.github.riicarus.front.semantic.types.type.Array;
+import io.github.riicarus.front.semantic.types.type.Basic;
 
 /**
  * SizeExpr:    "sizeof" "(" X ")"
@@ -13,12 +17,12 @@ public class SizeExpr extends Expr {
 
     private Expr x;
 
-    public Expr getX() {
-        return x;
-    }
+    @Override
+    public Type doCheckType(Checker checker, Type outerType) {
+        Type xt = x.checkType(checker, null);
+        if (xt instanceof Array) return Basic.INT;
 
-    public void setX(Expr x) {
-        this.x = x;
+        throw new IllegalStateException(String.format("Type error: need array, but get %s", xt));
     }
 
     @Override
@@ -32,5 +36,17 @@ public class SizeExpr extends Expr {
         sb.append(prefix).append(t).append(link).append("SizeOf")
                 .append(x.toTreeString(level + 1, prefix));
         return sb.toString();
+    }
+
+    /* **************************************************************
+     * Getters and Setters
+     *************************************************************** */
+
+    public Expr getX() {
+        return x;
+    }
+
+    public void setX(Expr x) {
+        this.x = x;
     }
 }

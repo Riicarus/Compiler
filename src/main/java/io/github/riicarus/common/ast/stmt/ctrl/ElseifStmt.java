@@ -3,6 +3,9 @@ package io.github.riicarus.common.ast.stmt.ctrl;
 import io.github.riicarus.common.ast.Ctrl;
 import io.github.riicarus.common.ast.Expr;
 import io.github.riicarus.common.ast.Stmt;
+import io.github.riicarus.front.semantic.Checker;
+import io.github.riicarus.front.semantic.types.Type;
+import io.github.riicarus.front.semantic.types.type.Basic;
 
 /**
  * "elseif" "(" Expr ")" NullableStmt
@@ -14,6 +17,34 @@ import io.github.riicarus.common.ast.Stmt;
 public final class ElseifStmt extends Ctrl {
     private Expr cond;
     private Stmt then;
+
+    @Override
+    public Type doCheckType(Checker checker, Type outerType) {
+        Type ct = cond.checkType(checker, null);
+        if (!ct.equals(Basic.BOOL))
+            throw new IllegalStateException("Type error: elseif condition should be bool");
+        if (then != null) then.checkType(checker, null);
+
+        return Basic.VOID;
+    }
+
+    @Override
+    public String toTreeString(int level, String prefix) {
+        StringBuilder sb = new StringBuilder();
+        String t = "\t".repeat(Math.max(0, level - 1));
+        String link = level == 0 ? "" : "|--- ";
+
+        if (level != 0) sb.append("\r\n");
+
+        sb.append(prefix).append(t).append(link).append("ElseIf")
+                .append(cond.toTreeString(level + 1, prefix))
+                .append(then == null ? "" : then.toTreeString(level + 1, prefix));
+        return sb.toString();
+    }
+
+    /* **************************************************************
+     * Getters and Setters
+     *************************************************************** */
 
     public Expr getCond() {
         return cond;
@@ -29,19 +60,5 @@ public final class ElseifStmt extends Ctrl {
 
     public void setThen(Stmt then) {
         this.then = then;
-    }
-
-    @Override
-    public String toTreeString(int level, String prefix) {
-        StringBuilder sb = new StringBuilder();
-        String t = "\t".repeat(Math.max(0, level - 1));
-        String link = level == 0 ? "" : "|--- ";
-
-        if (level != 0) sb.append("\r\n");
-
-        sb.append(prefix).append(t).append(link).append("ElseIf")
-                .append(cond.toTreeString(level + 1, prefix))
-                .append(then == null ? "" : then.toTreeString(level + 1, prefix));
-        return sb.toString();
     }
 }

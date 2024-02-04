@@ -143,7 +143,7 @@ public class Syntaxer {
         try {
             return codeFile();
         } catch (IllegalStateException e) {
-            throw new IllegalStateException("Syntax error: at " + token.getPosition() + ": " + e.getMessage(), e);
+            throw new IllegalStateException(String.format("%s : Syntax error: %s", token.getPosition(), e.getMessage()), e);
         }
     }
 
@@ -971,7 +971,7 @@ public class Syntaxer {
             throw new IllegalStateException("Function " + name + " has already been declared");
 
         final Signature signature = new Signature();
-        signature.setParamType(lit.getParamDecls().stream().map(p -> p.getType().type()).collect(Collectors.toList()));
+        signature.setParamTypes(lit.getParamDecls().stream().map(p -> p.getType().type()).collect(Collectors.toList()));
         signature.setName(name);
         signature.setRetType(retType.type());
         final Element e = new Element();

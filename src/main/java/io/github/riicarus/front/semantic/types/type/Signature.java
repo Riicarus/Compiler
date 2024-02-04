@@ -3,7 +3,6 @@ package io.github.riicarus.front.semantic.types.type;
 import io.github.riicarus.front.semantic.types.Type;
 
 import java.util.List;
-import java.util.Objects;
 
 import static java.util.stream.Collectors.joining;
 
@@ -17,7 +16,7 @@ import static java.util.stream.Collectors.joining;
 public class Signature implements Type {
 
     private Type retType;
-    private List<Type> paramType;
+    private List<Type> paramTypes;
     private String name;
 
     @Override
@@ -35,21 +34,21 @@ public class Signature implements Type {
         if (this == o) return true;
         if (!(o instanceof Signature signature)) return false;
 
-        if (getParamType() != null ? !getParamType().equals(signature.getParamType()) : signature.getParamType() != null)
+        if (getRetType() != null ? !getRetType().equals(signature.getRetType()) : signature.getRetType() != null)
             return false;
-        return Objects.equals(name, signature.name);
+        return getParamTypes() != null ? getParamTypes().equals(signature.getParamTypes()) : signature.getParamTypes() == null;
     }
 
     @Override
     public int hashCode() {
-        int result = getParamType() != null ? getParamType().hashCode() : 0;
-        result = 31 * result + (name != null ? name.hashCode() : 0);
+        int result = getRetType() != null ? getRetType().hashCode() : 0;
+        result = 31 * result + (getParamTypes() != null ? getParamTypes().hashCode() : 0);
         return result;
     }
 
     @Override
     public String toString() {
-        return String.format("%s (%s) -> %s", name, paramType.stream().map(Type::toString).collect(joining(", ")), retType);
+        return String.format("%s (%s) -> %s", name, paramTypes.stream().map(Type::toString).collect(joining(", ")), retType);
     }
 
     public Type getRetType() {
@@ -60,12 +59,12 @@ public class Signature implements Type {
         this.retType = retType;
     }
 
-    public List<Type> getParamType() {
-        return paramType;
+    public List<Type> getParamTypes() {
+        return paramTypes;
     }
 
-    public void setParamType(List<Type> paramType) {
-        this.paramType = paramType;
+    public void setParamTypes(List<Type> paramTypes) {
+        this.paramTypes = paramTypes;
     }
 
     public void setName(String name) {

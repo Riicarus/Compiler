@@ -1,6 +1,16 @@
 package io.github.riicarus.common.ast.expr.op;
 
+import io.github.riicarus.common.ast.Expr;
+import io.github.riicarus.common.ast.expr.lit.BasicLit;
+import io.github.riicarus.common.ast.expr.lit.CompositeLit;
+import io.github.riicarus.common.ast.expr.lit.FuncLit;
 import io.github.riicarus.front.lex.LexSymbol;
+import io.github.riicarus.front.semantic.Checker;
+import io.github.riicarus.front.semantic.types.Type;
+import io.github.riicarus.front.semantic.types.type.Any;
+import io.github.riicarus.front.semantic.types.type.Array;
+import io.github.riicarus.front.semantic.types.type.Basic;
+import io.github.riicarus.front.semantic.types.type.Signature;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -68,6 +78,90 @@ public enum BinaryOp implements Operator {
     public int getPriority() {
         return priority;
     }
+
+    @Override
+    public Type checkType(Checker checker, Expr x, Expr y) {
+        Type xt = x.checkType(checker, null);
+        Type yt = y.checkType(checker, null);
+
+        if (BinaryOp.ASSIGN_OP_MAP.containsValue(this) && (x instanceof BasicLit || x instanceof FuncLit || x instanceof CompositeLit))
+            throw new IllegalStateException(String.format("Type error: illegal assign receiver %s", x));
+
+        if (BinaryOp.ASSIGN_OP_MAP.containsValue(this) && yt.equals(Any.ANY))
+            return xt;
+        if (BinaryOp.NE.equals(this) && (xt.equals(Any.ANY) || yt.equals(Any.ANY)))
+            return Basic.BOOL;
+
+        if (!xt.equals(yt))
+            throw new IllegalStateException(String.format("Type error: illegal type for operation: %s %s %s", xt, op, yt));
+
+        if (xt instanceof Signature xs && yt instanceof Signature ys) {
+            if (!xs.getRetType().equals(ys.getRetType()))
+                throw new IllegalStateException(String.format("Type error: illegal type for operation: %s %s %s", xt, op, yt));
+            if (xs.getParamTypes().size() != ys.getParamTypes().size())
+                throw new IllegalStateException(String.format("Type error: illegal type for operation: %s %s %s", xt, op, yt));
+            for (int i = 0; i < xs.getParamTypes().size(); i++)
+                if (!xs.getParamTypes().get(i).equals(ys.getParamTypes().get(i)))
+                    throw new IllegalStateException(String.format("Type error: illegal type for operation: %s %s %s", xt, op, yt));
+
+            return xs;
+        }
+
+        if (xt instanceof Array xa && yt instanceof Array ya) {
+            if (!xa.getEleType().equals(ya.getEleType()))
+                throw new IllegalStateException(String.format("Type error: illegal type for operation: %s %s %s", xt, op, yt));
+
+            return xa;
+        }
+
+        if (xt instanceof Basic xb && yt instanceof Basic yb)
+            return switch (this) {
+                case ASSIGN -> xt;
+                case ADD, ADD_ASSIGN -> {
+                    switch (xb) {
+                        case INT -> {
+                            yield Basic.INT;
+                        }
+                        case FLOAT -> {
+                            yield Basic.FLOAT;
+                        }
+                        case CHAR, STRING -> {
+                            yield Basic.STRING;
+                        }
+                        default ->
+                                throw new IllegalStateException(String.format("Type error: illegal type for operation: %s %s %s", xt, op, yt));
+                    }
+
+                }
+                case SUB, SUB_ASSIGN, MUL, MUL_ASSIGN, QUO, QUO_ASSIGN, REM, REM_ASSIGN -> {
+                    switch (xb) {
+                        case INT -> {
+                            yield Basic.INT;
+                        }
+                        case FLOAT -> {
+                            yield Basic.FLOAT;
+                        }
+                        default ->
+                                throw new IllegalStateException(String.format("Type error: illegal type for operation: %s %s %s", xt, op, yt));
+                    }
+                }
+                case EQ, NE, LT, LE, GT, GE -> {
+                    if (xt.equals(Basic.INT) || xt.equals(Basic.FLOAT)) yield Basic.BOOL;
+                    throw new IllegalStateException(String.format("Type error: illegal type for operation: %s %s %s", xt, op, yt));
+                }
+                case AND, AND_ASSIGN, OR, OR_ASSIGN, LAND, LOR -> {
+                    if (xt.equals(Basic.BOOL)) yield Basic.BOOL;
+                    throw new IllegalStateException(String.format("Type error: illegal type for operation: %s %s %s", xt, op, yt));
+                }
+                case XOR, XOR_ASSIGN, SHL, SHL_ASSIGN, SHR, SHR_ASSIGN -> {
+                    if (xt.equals(Basic.INT)) yield Basic.INT;
+                    throw new IllegalStateException(String.format("Type error: illegal type for operation: %s %s %s", xt, op, yt));
+                }
+            };
+
+        throw new IllegalStateException(String.format("Type error: illegal type for operation: %s %s %s", xt, op, yt));
+    }
+
 
     public static final Map<LexSymbol, BinaryOp> ARITH_OP_MAP = new HashMap<>();
 

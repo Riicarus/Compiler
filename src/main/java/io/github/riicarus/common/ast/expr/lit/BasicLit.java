@@ -2,6 +2,10 @@ package io.github.riicarus.common.ast.expr.lit;
 
 import io.github.riicarus.common.ast.Expr;
 import io.github.riicarus.front.lex.LitKind;
+import io.github.riicarus.front.semantic.Checker;
+import io.github.riicarus.front.semantic.types.Type;
+import io.github.riicarus.front.semantic.types.type.Any;
+import io.github.riicarus.front.semantic.types.type.Basic;
 
 /**
  * int_lit | float_lit | char_lit | string_lit | "true" | "false" | "null"
@@ -28,6 +32,18 @@ public final class BasicLit extends Expr {
 
     public void setKind(LitKind kind) {
         this.kind = kind;
+    }
+
+    @Override
+    public Type doCheckType(Checker checker, Type outerType) {
+        return switch (kind) {
+            case INT -> Basic.INT;
+            case FLOAT -> Basic.FLOAT;
+            case TRUE, FALSE -> Basic.BOOL;
+            case CHAR -> Basic.CHAR;
+            case STRING -> Basic.STRING;
+            case NULL -> Any.ANY;
+        };
     }
 
     @Override

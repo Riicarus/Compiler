@@ -378,3 +378,7 @@ If we bind a function lit to a variable, the `FuncLit` will be firstly created a
 Some complex statements have a code block like body with only one statement, but not quoted by `{}`, we bind the scope to the statement. Otherwise, the scope will bind to code block, or the outer size of statements like `ForStmt`.
 
 > Note that the scope will set its `collecting` field to `false` immediately after the first invocation of `Scope#exit()` method.
+
+### Type check
+
+Type check checks through the AST.

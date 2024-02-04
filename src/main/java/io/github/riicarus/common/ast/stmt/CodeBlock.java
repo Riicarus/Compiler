@@ -1,6 +1,9 @@
 package io.github.riicarus.common.ast.stmt;
 
 import io.github.riicarus.common.ast.Stmt;
+import io.github.riicarus.front.semantic.Checker;
+import io.github.riicarus.front.semantic.types.Type;
+import io.github.riicarus.front.semantic.types.type.Basic;
 
 import java.util.List;
 
@@ -14,12 +17,10 @@ import java.util.List;
 public final class CodeBlock extends Stmt {
     private List<Stmt> stmts;
 
-    public List<Stmt> getStmts() {
-        return stmts;
-    }
-
-    public void setStmts(List<Stmt> stmts) {
-        this.stmts = stmts;
+    @Override
+    public Type doCheckType(Checker checker, Type outerType) {
+        if (stmts != null) stmts.forEach(s -> s.checkType(checker, outerType));
+        return Basic.VOID;
     }
 
     @Override
@@ -33,5 +34,13 @@ public final class CodeBlock extends Stmt {
         sb.append(prefix).append(t).append(link).append("CodeBlock");
         if (stmts != null) stmts.forEach(s -> sb.append(s.toTreeString(level + 1, prefix)));
         return sb.toString();
+    }
+
+    public List<Stmt> getStmts() {
+        return stmts;
+    }
+
+    public void setStmts(List<Stmt> stmts) {
+        this.stmts = stmts;
     }
 }

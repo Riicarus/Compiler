@@ -1,6 +1,9 @@
 package io.github.riicarus.common.ast.stmt.ctrl;
 
 import io.github.riicarus.common.ast.*;
+import io.github.riicarus.front.semantic.Checker;
+import io.github.riicarus.front.semantic.types.Type;
+import io.github.riicarus.front.semantic.types.type.Basic;
 
 import java.util.List;
 
@@ -16,6 +19,39 @@ public final class ForStmt extends Ctrl {
     private Expr cond;
     private List<SimpleStmt> updates;
     private Stmt body;
+
+    @Override
+    public Type doCheckType(Checker checker, Type outerType) {
+        if (inits != null) inits.forEach(i -> ((ASTNode) i).checkType(checker, null));
+        if (cond != null) {
+            Type ct = cond.checkType(checker, null);
+            if (!ct.equals(Basic.BOOL))
+                throw new IllegalStateException("Type error: for condition should be bool");
+        }
+        if (updates != null) updates.forEach(u -> ((ASTNode) u).checkType(checker, null));
+
+        return body == null ? Basic.VOID : body.checkType(checker, null);
+    }
+
+    @Override
+    public String toTreeString(int level, String prefix) {
+        StringBuilder sb = new StringBuilder();
+        String t = "\t".repeat(Math.max(0, level - 1));
+        String link = level == 0 ? "" : "|--- ";
+
+        if (level != 0) sb.append("\r\n");
+
+        sb.append(prefix).append(t).append(link).append("For")
+                .append(cond == null ? "" : cond.toTreeString(level + 1, prefix))
+                .append(body == null ? "" : body.toTreeString(level + 1, prefix));
+        if (inits != null) inits.forEach(i -> sb.append(((ASTNode) i).toTreeString(level + 1, prefix)));
+        if (updates != null) updates.forEach(u -> sb.append(((ASTNode) u).toTreeString(level + 1, prefix)));
+        return sb.toString();
+    }
+
+    /* **************************************************************
+     * Getters and Setters
+     *************************************************************** */
 
     public List<SimpleStmt> getInits() {
         return inits;
@@ -47,21 +83,5 @@ public final class ForStmt extends Ctrl {
 
     public void setBody(Stmt body) {
         this.body = body;
-    }
-
-    @Override
-    public String toTreeString(int level, String prefix) {
-        StringBuilder sb = new StringBuilder();
-        String t = "\t".repeat(Math.max(0, level - 1));
-        String link = level == 0 ? "" : "|--- ";
-
-        if (level != 0) sb.append("\r\n");
-
-        sb.append(prefix).append(t).append(link).append("For")
-                .append(cond == null ? "" : cond.toTreeString(level + 1, prefix))
-                .append(body == null ? "" : body.toTreeString(level + 1, prefix));
-        if (inits != null) inits.forEach(i -> sb.append(((ASTNode) i).toTreeString(level + 1, prefix)));
-        if (updates != null) updates.forEach(u -> sb.append(((ASTNode) u).toTreeString(level + 1, prefix)));
-        return sb.toString();
     }
 }
