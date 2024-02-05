@@ -12,6 +12,7 @@ import io.github.riicarus.front.semantic.types.type.Array;
  */
 public final class ArrayType extends TypeDecl {
     private TypeDecl eleType;
+    private int size;
 
     @Override
     public Array type() {
@@ -28,7 +29,7 @@ public final class ArrayType extends TypeDecl {
 
         if (level != 0) sb.append("\r\n");
 
-        sb.append(prefix).append(t).append(link).append("ArrayType")
+        sb.append(prefix).append(t).append(link).append("ArrayType").append("[").append(size).append("]")
                 .append(eleType.toTreeString(level + 1, prefix));
         return sb.toString();
     }
@@ -39,5 +40,13 @@ public final class ArrayType extends TypeDecl {
 
     public void setEleType(TypeDecl eleType) {
         this.eleType = eleType;
+    }
+
+    public int getSize() {
+        return size;
+    }
+
+    public void setSize(int size) {
+        this.size = size;
     }
 }

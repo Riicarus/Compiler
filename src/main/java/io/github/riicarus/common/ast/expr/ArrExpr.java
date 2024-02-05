@@ -14,8 +14,7 @@ import io.github.riicarus.front.semantic.types.Type;
  */
 public final class ArrExpr extends Expr {
 
-    private final ArrayType type = new ArrayType();
-    private Expr size;
+    private ArrayType type;
     private CompositeLit lit;
 
     @Override
@@ -34,7 +33,6 @@ public final class ArrExpr extends Expr {
 
         sb.append(prefix).append(t).append(link).append("Array")
                 .append(type.toTreeString(level + 1, prefix))
-                .append(size.toTreeString(level + 1, prefix))
                 .append(lit == null ? "" : lit.toTreeString(level + 1, prefix));
 
         return sb.toString();
@@ -49,15 +47,16 @@ public final class ArrExpr extends Expr {
     }
 
     public void setBaseType(TypeDecl type) {
+        this.type = new ArrayType();
         this.type.setEleType(type);
     }
 
-    public Expr getSize() {
-        return size;
+    public int getSize() {
+        return this.type.getSize();
     }
 
-    public void setSize(Expr size) {
-        this.size = size;
+    public void setSize(int size) {
+        this.type.setSize(size);
     }
 
     public CompositeLit getLit() {

@@ -213,7 +213,9 @@ Elements:       [ Expr | CompositeLit ] [ "," Elements ]
 
 FuncLit:        Type "(" FieldDecls ")" "->" Stmt
 
-NewArr:         "new" Type "[" Expr "]" [ CompositeLit ]
+NewArr:         "new" Type Sizes [ CompositeLit ]
+
+Sizes:          "[" Expr "]" [ Sizes ]
 
 PrimaryExpr:    Operand
             |   PrimaryExpr Index

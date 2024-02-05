@@ -385,9 +385,9 @@ public class Syntaxer {
     }
 
     /**
-     * NewArrExpr:  "new" Type "[" Expr "]" [ "{" Elements "}" ] <br/>
-     * Elements:    Expr Elements' | e <br/>
-     * Elements':   ", " Expr Elements' | e<br/>
+     * NewArrExpr:  "new" Type Sizes [ "{" Elements "}" ] <br/>
+     * Sizes:       "[" constInt "]" [ Sizes ] <br/>
+     * Elements:    [ Expr | CompositeLit ] [ "," Elements ] <br/>
      * <br/>
      * If there's no element or the composite element is null, all elements are initialized with default value.
      *
@@ -398,18 +398,27 @@ public class Syntaxer {
 
         want(LexSymbol.NEW);
 
-        final ArrExpr x = new ArrExpr();
+        ArrExpr x = new ArrExpr();
         x.setPosition(token.getPosition());
 
         TypeDecl baseType = typeDecl();
         x.setBaseType(baseType);
 
         want(LexSymbol.LBRACK);
-
-        Expr size = expr();
-        x.setSize(size);
-
+        if (!token.getSymbol().equals(LexSymbol.INT_LIT))
+            throw new IllegalStateException("Illegal array size");
+        x.setSize(Integer.parseInt(token.getLexeme()));
+        next();
         want(LexSymbol.RBRACK);
+
+        while (got(LexSymbol.LBRACK)) {
+            if (!token.getSymbol().equals(LexSymbol.INT_LIT))
+                throw new IllegalStateException("Illegal array size");
+            x.setBaseType(x.getType());
+            x.setSize(Integer.parseInt(token.getLexeme()));
+            next();
+            want(LexSymbol.RBRACK);
+        }
 
         if (is(LexSymbol.LBRACE)) {
             final CompositeLit elements = compositeLit();
@@ -918,7 +927,7 @@ public class Syntaxer {
             x.setAssign(assign);
 
             // if is func variable decl, update scope name of func lit
-            if (x.getType() instanceof FuncType) {
+            if (x.getType() instanceof FuncType)
                 if (assign.getY() instanceof FuncLit lit) {
                     String oldName = lit.getScope().getName();
                     String newName = String.format("%s#%s#%s",
@@ -927,7 +936,11 @@ public class Syntaxer {
                             oldName.substring(oldName.lastIndexOf("#") + 1));
                     lit.getScope().setName(newName);
                 }
-            }
+
+
+            if (x.getType() instanceof ArrayType)
+                if (assign.getY() instanceof ArrExpr a)
+                    x.setType(a.getType());
         }
 
         want(LexSymbol.SEMICOLON);
