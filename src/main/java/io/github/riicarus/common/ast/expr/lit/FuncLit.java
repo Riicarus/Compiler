@@ -2,10 +2,13 @@ package io.github.riicarus.common.ast.expr.lit;
 
 import io.github.riicarus.common.ast.Expr;
 import io.github.riicarus.common.ast.Stmt;
+import io.github.riicarus.common.ast.stmt.CodeBlock;
+import io.github.riicarus.common.ast.stmt.ctrl.RetStmt;
 import io.github.riicarus.common.ast.stmt.decl.FieldDecl;
 import io.github.riicarus.common.ast.stmt.decl.TypeDecl;
 import io.github.riicarus.front.semantic.Checker;
 import io.github.riicarus.front.semantic.types.Type;
+import io.github.riicarus.front.semantic.types.type.Basic;
 import io.github.riicarus.front.semantic.types.type.Signature;
 
 import java.util.List;
@@ -29,14 +32,19 @@ public final class FuncLit extends Expr {
         s.setRetType(retType.type());
         s.setParamTypes(paramDecls.stream().map(p -> p.getType().type()).collect(Collectors.toList()));
 
-        body.checkType(checker, null);
+        // body.checkType(checker, null);
+
+        if (body instanceof RetStmt ret) {
+            Type retValType = ret.checkType(checker, null);
+            if (!retValType.equals(retType.type()))
+                throw new IllegalStateException(String.format("Type error: function return type need: %s, but get %s", s.getRetType(), retValType));
+        } else if (body instanceof CodeBlock cb) {
+            cb.checkType(checker, null);
+            // TODO: check statement in cb, like: CodeBlock#checkStatement(Checker checker, Type retType);
+        } else if (!retType.type().equals(Basic.VOID))
+            throw new IllegalStateException("Function miss return statement");
 
         return s;
-
-        // final Type rt = body.chechType(checker, null);
-        // if (s.getRetType().equals(rt)) return s;
-
-        // throw new IllegalStateException(String.format("Type error: function return type need: %s, but get %s", s.getRetType(), rt));
     }
 
     @Override
