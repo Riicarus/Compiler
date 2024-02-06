@@ -215,7 +215,7 @@ FuncLit:        Type "(" FieldDecls ")" "->" Stmt
 
 NewArr:         "new" Type Sizes [ CompositeLit ]
 
-Sizes:          "[" Expr "]" [ Sizes ]
+Sizes:          "[" int_lit "]" [ Sizes ]
 
 PrimaryExpr:    Operand
             |   PrimaryExpr Index
@@ -330,7 +330,7 @@ For the above syntax, we designed AST nodes for it. The AST nodes is divided int
   - `SliceExpr`: Get elements(slice) from array by from and to index, like: `X[index[0], index[1]]`.
   - `CastExpr`: Cast variable into another type, like: `(Type) X`.
   - `NameExpr`: Identifiers.
-  - `ArrExpr`: Create array by keyword `new`, like: `new Type[] { Elements }`.
+  - `ArrExpr`: Create array by keyword `new`, like: `new Type Sizes { Elements }`.
   - `SizeExpr`: Get array size like: `sizeof(X)`.
   - `Inc/DecExpr`: Variables pre/post self increase/decrease expression, like: `i++`, `--i`.
 - `Stmt`: Executable actions.

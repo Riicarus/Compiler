@@ -11,7 +11,7 @@ import io.github.riicarus.front.semantic.types.Type;
  */
 public class Any implements Type {
 
-    public static final Any ANY = new Any();
+    public static final Any NULL = new Any();
 
     private Any() {}
 

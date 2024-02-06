@@ -386,7 +386,7 @@ public class Syntaxer {
 
     /**
      * NewArrExpr:  "new" Type Sizes [ "{" Elements "}" ] <br/>
-     * Sizes:       "[" constInt "]" [ Sizes ] <br/>
+     * Sizes:       "[" int_lit "]" [ Sizes ] <br/>
      * Elements:    [ Expr | CompositeLit ] [ "," Elements ] <br/>
      * <br/>
      * If there's no element or the composite element is null, all elements are initialized with default value.
@@ -908,16 +908,6 @@ public class Syntaxer {
         if (s.lookup(name) != null)
             throw new IllegalStateException("Variable " + name + " has already been declared");
 
-        final Element e = new Element();
-        e.setScope(s)
-                .setRootScope(codeFile.getScope())
-                .setPos(x.getPosition()).setName(name)
-                .setType(x.getType().type()).setTypeDecl(x)
-                .setConst(x.isConst()).setOrder(s.getElements().size());
-        s.addEle(name, e);
-        if (e.getType() instanceof Signature signature)
-            signature.setName(x.getName().getValue());
-
         if (got(LexSymbol.ASSIGN)) {
             final AssignExpr assign = new AssignExpr();
             assign.setPosition(token.getPosition());
@@ -937,13 +927,22 @@ public class Syntaxer {
                     lit.getScope().setName(newName);
                 }
 
-
+            // if is array type decl, update the type decl to the assign type(with sizes)
             if (x.getType() instanceof ArrayType)
                 if (assign.getY() instanceof ArrExpr a)
                     x.setType(a.getType());
         }
 
         want(LexSymbol.SEMICOLON);
+
+        final Element e = new Element();
+        e.setScope(s)
+                .setRootScope(codeFile.getScope())
+                .setPos(x.getPosition()).setName(name)
+                .setType(x.getType().type()).setTypeDecl(x)
+                .setConst(x.isConst()).setOrder(s.getElements().size());
+        s.addEle(name, e);
+        if (e.getType() instanceof Signature signature) signature.setName(name);
 
         return x;
     }

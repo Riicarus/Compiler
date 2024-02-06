@@ -12,6 +12,7 @@ import io.github.riicarus.front.semantic.types.Type;
 public class Array implements Type {
 
     private Type eleType;
+    private int size;
 
     @Override
     public Type underlying() {
@@ -20,7 +21,7 @@ public class Array implements Type {
 
     @Override
     public String naming() {
-        return "Array";
+        return String.format("Array[%d]", size);
     }
 
     @Override
@@ -38,7 +39,7 @@ public class Array implements Type {
 
     @Override
     public String toString() {
-        return eleType + "[]";
+        return String.format("{%s}[%d]", eleType, size);
     }
 
     public Type getEleType() {
@@ -47,5 +48,13 @@ public class Array implements Type {
 
     public void setEleType(Type eleType) {
         this.eleType = eleType;
+    }
+
+    public int getSize() {
+        return size;
+    }
+
+    public void setSize(int size) {
+        this.size = size;
     }
 }

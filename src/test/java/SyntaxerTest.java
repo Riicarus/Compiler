@@ -21,15 +21,14 @@ public class SyntaxerTest {
         syntaxer.init("D:\\tmp\\compiler\\lex.txt", true);
         final CodeFile codeFile = syntaxer.parse();
         System.out.println(codeFile.toTreeString(0, "\t"));
+
+        System.out.println();
         Queue<Scope> q = new LinkedList<>();
         q.add(codeFile.getScope());
-
         while (!q.isEmpty()) {
             Scope scope = q.poll();
-            scope.getChildren().forEach(s -> {
-                System.out.println(s);
-                s.getElements().forEach((n, e) -> System.out.println("\t" + e));
-            });
+            System.out.println(scope);
+            scope.getElements().forEach((n, e) -> System.out.println("\t" + e));
             q.addAll(scope.getChildren());
         }
 

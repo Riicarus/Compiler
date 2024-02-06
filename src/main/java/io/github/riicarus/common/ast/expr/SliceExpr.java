@@ -24,7 +24,11 @@ public final class SliceExpr extends Expr {
         Type it1 = index1 == null ? Basic.INT : index1.checkType(checker, null);
         Type it2 = index2 == null ? Basic.INT : index2.checkType(checker, null);
 
-        if (xt instanceof Array && it1.equals(Basic.INT) && it2.equals(Basic.INT)) return xt;
+        if (xt instanceof Array xat && it1.equals(Basic.INT) && it2.equals(Basic.INT)) {
+            Array at = new Array();
+            at.setEleType(xat.getEleType());
+            return at;
+        }
 
         throw new IllegalStateException(String.format("Type error: need array[int:int], but get %s[%s:%s]", xt, it1, it2));
     }

@@ -48,7 +48,7 @@ public class Signature implements Type {
 
     @Override
     public String toString() {
-        return String.format("%s (%s) -> %s", name, paramTypes.stream().map(Type::toString).collect(joining(", ")), retType);
+        return String.format("%s (%s) -> %s", name == null ? "_" : name, paramTypes.stream().map(Type::toString).collect(joining(", ")), retType);
     }
 
     public Type getRetType() {

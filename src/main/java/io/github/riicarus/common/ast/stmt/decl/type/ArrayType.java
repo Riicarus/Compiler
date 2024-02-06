@@ -18,6 +18,7 @@ public final class ArrayType extends TypeDecl {
     public Array type() {
         final Array t = new Array();
         t.setEleType(eleType.type());
+        t.setSize(size);
         return t;
     }
 

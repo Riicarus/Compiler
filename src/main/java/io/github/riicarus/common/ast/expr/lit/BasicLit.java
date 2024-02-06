@@ -42,7 +42,7 @@ public final class BasicLit extends Expr {
             case TRUE, FALSE -> Basic.BOOL;
             case CHAR -> Basic.CHAR;
             case STRING -> Basic.STRING;
-            case NULL -> Any.ANY;
+            case NULL -> Any.NULL;
         };
     }
 
