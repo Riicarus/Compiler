@@ -20,6 +20,10 @@ public final class ContinueStmt extends Ctrl {
     }
 
     @Override
+    public void checkStatement(Checker checker, Type retType) {
+    }
+
+    @Override
     public String toTreeString(int level, String prefix) {
         StringBuilder sb = new StringBuilder();
         String t = "\t".repeat(Math.max(0, level - 1));

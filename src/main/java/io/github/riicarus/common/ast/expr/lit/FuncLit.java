@@ -3,6 +3,8 @@ package io.github.riicarus.common.ast.expr.lit;
 import io.github.riicarus.common.ast.Expr;
 import io.github.riicarus.common.ast.Stmt;
 import io.github.riicarus.common.ast.stmt.CodeBlock;
+import io.github.riicarus.common.ast.stmt.ctrl.BreakStmt;
+import io.github.riicarus.common.ast.stmt.ctrl.ContinueStmt;
 import io.github.riicarus.common.ast.stmt.ctrl.RetStmt;
 import io.github.riicarus.common.ast.stmt.decl.FieldDecl;
 import io.github.riicarus.common.ast.stmt.decl.TypeDecl;
@@ -30,19 +32,18 @@ public final class FuncLit extends Expr {
     public Signature doCheckType(Checker checker, Type outerType) {
         final Signature s = new Signature();
         s.setRetType(retType.type());
-        s.setParamTypes(paramDecls.stream().map(p -> p.getType().type()).collect(Collectors.toList()));
+        if (paramDecls != null) s.setParamTypes(paramDecls.stream().map(p -> p.getType().type()).collect(Collectors.toList()));
 
-        // body.checkType(checker, null);
+        if (body == null) throw new IllegalStateException("Missing body statement");
 
         if (body instanceof RetStmt ret) {
             Type retValType = ret.checkType(checker, null);
             if (!retValType.equals(retType.type()))
                 throw new IllegalStateException(String.format("Type error: function return type need: %s, but get %s", s.getRetType(), retValType));
-        } else if (body instanceof CodeBlock cb) {
-            cb.checkType(checker, null);
-            // TODO: check statement in cb, like: CodeBlock#checkStatement(Checker checker, Type retType);
-        } else if (!retType.type().equals(Basic.VOID))
-            throw new IllegalStateException("Function miss return statement");
+        } else if (body instanceof CodeBlock cb) cb.checkType(checker, retType.type());
+        else if (body instanceof ContinueStmt || body instanceof BreakStmt) throw new IllegalStateException("Illegal statement here");
+        else if (!retType.type().equals(Basic.VOID)) throw new IllegalStateException("Missing return statement");
+        else body.checkType(checker, retType.type());
 
         return s;
     }

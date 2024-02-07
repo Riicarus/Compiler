@@ -1,5 +1,8 @@
 package io.github.riicarus.common.ast;
 
+import io.github.riicarus.front.semantic.Checker;
+import io.github.riicarus.front.semantic.types.Type;
+
 /**
  * Expr node of AST.
  *
@@ -8,5 +11,9 @@ package io.github.riicarus.common.ast;
  * @since 1.0.0
  */
 public abstract class Expr extends Stmt implements SimpleStmt {
+
+    @Override
+    public void checkStatement(Checker checker, Type retType) {
+    }
 }
 

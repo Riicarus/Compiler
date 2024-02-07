@@ -1,6 +1,7 @@
 package io.github.riicarus.common.ast.stmt.ctrl;
 
 import io.github.riicarus.common.ast.*;
+import io.github.riicarus.common.ast.stmt.CodeBlock;
 import io.github.riicarus.front.semantic.Checker;
 import io.github.riicarus.front.semantic.types.Type;
 import io.github.riicarus.front.semantic.types.type.Basic;
@@ -21,7 +22,7 @@ public final class ForStmt extends Ctrl {
     private Stmt body;
 
     @Override
-    public Type doCheckType(Checker checker, Type outerType) {
+    public Type doCheckType(Checker checker, Type retType) {
         if (inits != null) inits.forEach(i -> ((ASTNode) i).checkType(checker, null));
         if (cond != null) {
             Type ct = cond.checkType(checker, null);
@@ -30,7 +31,24 @@ public final class ForStmt extends Ctrl {
         }
         if (updates != null) updates.forEach(u -> ((ASTNode) u).checkType(checker, null));
 
-        return body == null ? Basic.VOID : body.checkType(checker, null);
+        if (body == null) throw new IllegalStateException("Missing body statement");
+
+        if (body instanceof RetStmt ret) {
+            Type retValType = ret.checkType(checker, null);
+            if (!retValType.equals(retType))
+                throw new IllegalStateException(String.format("Type error: return type need: %s, but get %s", retType, retValType));
+        } else if (body instanceof CodeBlock cb) {
+            checker.setLoopCnt(checker.getLoopCnt() + 1);
+            cb.checkType(checker, retType);
+        }
+        else if (body instanceof ContinueStmt || body instanceof BreakStmt) throw new IllegalStateException("Illegal statement here");
+        else body.checkType(checker, retType);
+
+        return Basic.VOID;
+    }
+
+    @Override
+    public void checkStatement(Checker checker, Type retType) {
     }
 
     @Override

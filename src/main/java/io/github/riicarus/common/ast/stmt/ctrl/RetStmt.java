@@ -19,8 +19,11 @@ public final class RetStmt extends Ctrl {
     @Override
     public Type doCheckType(Checker checker, Type outerType) {
         // TODO: scope increment
-
         return retVal == null ? Basic.VOID : retVal.checkType(checker, null);
+    }
+
+    @Override
+    public void checkStatement(Checker checker, Type retType) {
     }
 
     @Override

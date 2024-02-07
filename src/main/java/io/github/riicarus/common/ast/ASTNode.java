@@ -14,10 +14,7 @@ import io.github.riicarus.front.semantic.types.Type;
 public abstract class ASTNode {
 
     protected Position position;
-
-    public Position getPosition() {
-        return position;
-    }
+    protected boolean reachable;
 
     /**
      * Check node's type
@@ -28,14 +25,22 @@ public abstract class ASTNode {
      */
     public abstract Type doCheckType(Checker checker, Type outerType);
 
+    /**
+     * Check if statement needs return (value)
+     *
+     * @param checker Checker
+     * @param retType Type, return value type
+     */
+    public abstract void checkStatement(Checker checker, Type retType);
+
     public final Type checkType(Checker checker, Type outerType) {
         if (this instanceof Stmt s && s.getScope() != null) checker.enter(s.getScope().getName());
         Type t = doCheckType(checker, outerType);
         if (this instanceof Stmt s && s.getScope() != null) checker.exit();
-        
+
         return t;
     }
-    
+
     public abstract String toTreeString(int level, String prefix);
 
     public final void print(String prefix) {
@@ -47,7 +52,19 @@ public abstract class ASTNode {
         return toTreeString(0, "");
     }
 
+    public Position getPosition() {
+        return position;
+    }
+
     public void setPosition(Position position) {
         this.position = position;
+    }
+
+    public boolean isReachable() {
+        return reachable;
+    }
+
+    public void setReachable(boolean reachable) {
+        this.reachable = reachable;
     }
 }

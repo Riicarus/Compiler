@@ -1,5 +1,8 @@
 package io.github.riicarus.common.ast;
 
+import io.github.riicarus.common.ast.stmt.ctrl.BreakStmt;
+import io.github.riicarus.common.ast.stmt.ctrl.ContinueStmt;
+import io.github.riicarus.common.ast.stmt.ctrl.RetStmt;
 import io.github.riicarus.front.semantic.Checker;
 import io.github.riicarus.front.semantic.types.Scope;
 import io.github.riicarus.front.semantic.types.Type;
@@ -24,9 +27,21 @@ public class CodeFile extends ASTNode {
     }
 
     @Override
-    public Type doCheckType(Checker checker, Type outerCheck) {
-        stmts.forEach(s -> s.checkType(checker, outerCheck));
+    public Type doCheckType(Checker checker, Type outerType) {
+        checkStatement(checker, Basic.VOID);
         return Basic.VOID;
+    }
+
+    @Override
+    public void checkStatement(Checker checker, Type retType) {
+        if (stmts == null) return;
+
+        for (Stmt stmt : stmts) {
+            if (stmt instanceof RetStmt || stmt instanceof ContinueStmt || stmt instanceof BreakStmt)
+                throw new IllegalStateException("Illegal statement here");
+
+            stmt.checkType(checker, retType);
+        }
     }
 
     @Override

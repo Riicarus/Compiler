@@ -23,6 +23,8 @@ public class Checker {
     private Scope curScope;
     private boolean debug;
 
+    private int loopCnt;
+
     /**
      * @param codeFile CodeFile, Root AST node
      * @param debug    boolean, is analyzer in debug mode
@@ -32,6 +34,7 @@ public class Checker {
         this.rootScope = codeFile.getScope();
         this.curScope = this.rootScope;
         this.debug = debug;
+        this.loopCnt = 0;
     }
 
     public void enter(String name) {
@@ -76,5 +79,13 @@ public class Checker {
 
     public void setDebug(boolean debug) {
         this.debug = debug;
+    }
+
+    public int getLoopCnt() {
+        return loopCnt;
+    }
+
+    public void setLoopCnt(int loopCnt) {
+        this.loopCnt = loopCnt;
     }
 }
